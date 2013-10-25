@@ -1,0 +1,14 @@
+.coll-doc-textarea {
+	width: 100%;
+	min-height: 150px;
+	color: white;
+	background-color: #112435 !important;
+}
+
+.doc-textarea {
+	display: none;
+}
+
+.indent-left {
+	margin-left: 50px;
+}

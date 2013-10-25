@@ -43,26 +43,25 @@
 
 {% block content %}
 
-<form method="POST" action="db/{{ dbName }}/{{ collectionName }}/{{ document._id }}">
+<form class="js-doc-form" method="POST" action="db/{{ dbName }}/{{ collectionName }}/{{ document._id }}">
   <input type="hidden" name="_method" value="put">
-  <button type="submit" class="btn btn-success btn-large"{# onclick="return checkJSON()"#}>
+  <button type="submit" class="js-doc-save btn btn-success btn-large"{# onclick="return checkJSON()"#}>
     <i class="icon-pencil icon-white"></i>
     Save
   </button>
   <br /><br />
-
-  <textarea class="span9" id="document" name="document">{{ docString }}</textarea>
+  <textarea class="span9 doc-textarea" id="document" name="document">{{ docString }}</textarea>
 </form>
 
 <script>
-  var doc = CodeMirror.fromTextArea(document.getElementById('document'), {
-    mode: { name: "javascript", json: true },
-    indentUnit: 4,
-    lineNumbers: true,
-    autoClearEmptyLines: true,
-    matchBrackets: true,
-    theme: "{{ editorTheme }}"
-  });
+  // var doc = CodeMirror.fromTextArea(document.getElementById('document'), {
+  //   mode: { name: "javascript", json: true },
+  //   indentUnit: 4,
+  //   lineNumbers: true,
+  //   autoClearEmptyLines: true,
+  //   matchBrackets: true,
+  //   theme: "{{ editorTheme }}"
+  // });
 
 {# This can check for valid JSON on the client side
  # Not used at the moment, since it doesn't allow BSON types
