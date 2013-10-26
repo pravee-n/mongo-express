@@ -303,6 +303,13 @@ app.post(config.site.baseUrl+'db/:database', middleware, routes.addCollection);
 
 app.get(config.site.baseUrl+'db/:database', middleware, routes.viewDatabase);
 
+// app.get('/test', function(req, res, next){
+//   console.log(req.query.collId)
+//   category.find({"_id": req.query.collId});
+//   // db.collection("",function(err,collection){
+//   // console.log(db.collections.find({"_id": req.query.collId}));
+// })
+
 //run as standalone App?
 if (require.main === module){
   app.listen(config.site.port);

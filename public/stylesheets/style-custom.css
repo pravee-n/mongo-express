@@ -5,10 +5,31 @@
 	background-color: #112435 !important;
 }
 
+.doc-form {
+	padding: 20px;
+	background-color: #f0f0f0;
+}
+
+.doc-form input {
+	width: 45%;
+}
+
+.row-separator {
+	margin: 10px -20px;
+	border-bottom: 1px solid #ccc;
+}
+
 .doc-textarea {
 	display: none;
 }
 
+.indent-block {
+	/*margin-left: 50px;*/
+	background-color: #f8f8f8;
+	padding: 20px;
+	margin: 20px 0 20px 50px;
+}
+
 .indent-left {
-	margin-left: 50px;
+	/*margin-left: 50px;*/
 }

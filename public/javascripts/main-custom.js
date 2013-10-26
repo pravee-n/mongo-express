@@ -79,11 +79,14 @@ $( document ).ready( function () {
 				}
 	        } else {
 	        	if ( prevKey ) {
-	        		formHtml += '<label class="indent-left">' + key + '</label>';
-		        	formHtml += '<input class="indent-left" name="' + prevKey + '[' + key + ']' + '" type="text" value="' + json[key] + '" ></input>';
+	        		formHtml += '<div class="indent-block">' +
+	        						'<label class="indent-left">' + key + '</label>' +
+		        					'<input class="indent-left" name="' + prevKey + '[' + key + ']' + '" type="text" value="' + json[key] + '" ></input>' +
+		        				'</div>';
 	        	} else {
-	        		formHtml += '<label>' + key + '</label>';
-		        	formHtml += '<input name="' + key + '" type="text" value="' + json[key] + '" ></input>';
+	        		formHtml += '<label>' + key + '</label>' +
+		        				'<input name="' + key + '" type="text" value="' + json[key] + '" ></input>' +
+		        				'<div class="row-separator"></div>';
 	        	}
 	        }
 		}
@@ -91,21 +94,27 @@ $( document ).ready( function () {
 
 	function iterateArray( array, prevKey ) {
 		// console.log(array.length)
+		formHtml += '<div class="indent-block">';
 		if ( array.length == 0 ) {
-		    formHtml += '<input class="indent-left" name="' + prevKey + '[]' + '" type="text" value="" ></input>';
+		    // formHtml += '<div class="indent-block">' +
+		    	formHtml +=	'<input class="indent-left" name="' + prevKey + '[]' + '" type="text" value="" ></input>';
+		    			// '<div>';
 		}
 		for( index in array ) {
 			if ( array[index] instanceof Object ) {
 				var json = array[index]
 				for ( key in json ) {
 					// console.log(prevKey + '[' + index + '][][' + key  + ']');
-	        		formHtml += '<label>' + key + '</label>';
-					formHtml += '<input class="indent-left" name="' + prevKey + '[' + index + '][' + key  + ']" type="text" value="' + json[key] + '" ></input>';
+	        		formHtml += '<label>' + key + '</label>' +
+								'<input class="indent-left" name="' + prevKey + '[' + index + '][' + key  + ']" type="text" value="' + json[key] + '" ></input>';
+								// '<div class="row-separator"></div>';
 				}
 			} else {
 		        formHtml += '<input class="indent-left" name="' + prevKey + '[]' + '" type="text" value="' + array[index] + '" ></input>';
 			}
+			formHtml += '<div class="row-separator"></div>'
 		}
+		formHtml += '</div>';
 	}
 
 	function getFormFromJson( jsonString ) {
@@ -151,12 +160,26 @@ $( document ).ready( function () {
 	$( '.js-doc-save' ).mouseover( function () {
 		var documentJson = $( '.js-document-form' ).serializeObject();
 		documentJson = getFinalDocument( documentJson );
-		// documentJson = checkEmptyArray( documentJson );
 		console.log(documentJson)
 		var documentJsonString = JSON.stringify( documentJson );
-		// documentJsonString = documentJsonString.split( '"ObjectID(' ).join( 'ObjectID("' ).split( ')"' ).join( '")' );
+		documentJsonString = documentJsonString.split( '"ObjectID(' ).join( 'ObjectID("' ).split( ')"' ).join( '")' );
 		console.log(documentJsonString);
 		$( '#document' ).text( documentJsonString );
 	} );
+
+	// getCollectionTemplate();
+
+	// function getCollectionTemplate() {
+	// 	$.ajax({
+	//         url: "/test",
+	//         cache: false,
+	//         type: "GET",
+	//         // dataType: "json",
+	//         data: 'collId=526a30321d41c8118d3e544c',
+	//         complete: function(response){
+	//             console.log(response);
+	//         }
+	//     });
+	// }
 
 } );
