@@ -89,3 +89,8 @@ exports.deleteDocument = function(req, res, next) {
     res.redirect(config.site.baseUrl+'db/' + req.dbName + '/' + req.collectionName);
   });
 };
+
+exports.getCollectionTemplate = function(req, res, next) {
+  console.log("testing");
+  // document.println('test');
+}

@@ -1,0 +1,55 @@
+.coll-doc-textarea {
+	width: 100%;
+	min-height: 150px;
+	color: white;
+	background-color: #112435 !important;
+}
+
+.doc-form {
+	padding: 20px;
+	background-color: #f0f0f0;
+}
+
+.doc-form input {
+	width: 45%;
+}
+
+.row-separator {
+	margin: 10px -20px;
+	border-bottom: 1px solid #ccc;
+}
+
+.doc-textarea {
+	display: none;
+}
+
+.indent-block {
+	/*margin-left: 50px;*/
+	background-color: #f8f8f8;
+	padding: 20px;
+	margin: 20px 0 20px 50px;
+}
+
+.indent-left {
+	/*margin-left: 50px;*/
+}
+
+.doc-array {
+	position: relative;
+	/*border: 1px solid black;*/
+	background-color: #f8f8f8;
+	padding: 20px;
+	margin: 20px 0 20px 50px;
+}
+
+.doc-array-remove {
+	background-color: #ee5f5b;
+	cursor: pointer;
+	padding: 5px;
+	position: absolute;right: 0px;
+	top:0px;
+}
+
+.doc-array-remove:hover {
+	background-color: #da4f49;
+}
