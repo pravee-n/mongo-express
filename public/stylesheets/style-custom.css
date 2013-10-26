@@ -33,3 +33,23 @@
 .indent-left {
 	/*margin-left: 50px;*/
 }
+
+.doc-array {
+	position: relative;
+	/*border: 1px solid black;*/
+	background-color: #f8f8f8;
+	padding: 20px;
+	margin: 20px 0 20px 50px;
+}
+
+.doc-array-remove {
+	background-color: #ee5f5b;
+	cursor: pointer;
+	padding: 5px;
+	position: absolute;right: 0px;
+	top:0px;
+}
+
+.doc-array-remove:hover {
+	background-color: #da4f49;
+}
