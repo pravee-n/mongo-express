@@ -19,8 +19,14 @@ $( document ).ready( function () {
 		        					'<input class="indent-left" name="' + prevKey + '[' + key + ']' + '" type="text" value="' + json[key] + '" ></input>' +
 		        				'</div>';
 	        	} else {
+	        		var element;
+	        		if ( key.indexOf( 'description' ) > -1 || key.indexOf( 'address' ) > -1 ) {
+	        			element = '<textarea name="' + key + '" type="text"  >'+json[key]+'</textarea>';
+	        		} else {
+	        			element = '<input name="' + key + '" type="text" value="' + json[key] + '" ></input>';
+	        		}
 	        		formHtml += '<label>' + key + '</label>' +
-		        				'<input name="' + key + '" type="text" value="' + json[key] + '" ></input>' +
+		        				 element +
 		        				'<div class="row-separator"></div>';
 	        	}
 	        }
@@ -32,6 +38,8 @@ $( document ).ready( function () {
 		if ( array.length == 0 ) {
 		    formHtml +=	'<input class="indent-left" name="' + prevKey + '[]' + '" type="text" value="" ></input>';
 		}
+		formHtml += '<div class="doc-array-container js-array-container">'+
+						'<div class="doc-array-add js-array-add" ><i class="icon-plus-sign icon-white" ></i>Add another</div>';
 		for( index in array ) {
 			if ( array[index] instanceof Object ) {
 				var json = array[index]
@@ -44,12 +52,12 @@ $( document ).ready( function () {
 				formHtml += '</div>';
 			} else {
 		        formHtml += '<div class="doc-array js-doc-array">'+
+		        				'<div class="js-array-remove doc-array-remove"><i class="icon-remove icon-white"></i></div>'+
 		        				'<input class="indent-left" name="' + prevKey + '[]' + '" type="text" value="' + array[index] + '" ></input>'+
 		        			'</div>';
 			}
-			// formHtml += '<div class="row-separator"></div>'
 		}
-		// formHtml += '</div>';
+		formHtml += '</div>';
 	}
 
 	function getFormFromJson( jsonString ) {
@@ -71,6 +79,15 @@ $( document ).ready( function () {
 	function bindFormEvents() {
 		$( '.js-array-remove' ).unbind( 'click' ).click( function () {
 			$( this ).parent( '.js-doc-array' ).remove();
+		} );
+
+		$( '.js-array-add' ).unbind( 'click' ).click( function () {
+			// var arrayHtml = $( this ).parent().find( '.js-doc-array:first' ).clone();
+			// console.log(arrayHtml);
+			// .after( $( this ) );
+			// arrayHtml.insertAfter( $( this ) );
+			$( this ).parent().find( '.js-doc-array:first' ).clone().insertAfter( $( this ) );
+			$( this ).parent().find( '.js-doc-array:first input' ).val( '' );
 		} );
 	}
 
@@ -98,7 +115,7 @@ $( document ).ready( function () {
 
 		documentJson = getFinalDocument( documentJson );
 		var documentJsonString = JSON.stringify( documentJson );
-		// documentJsonString = documentJsonString.split( '"ObjectID(' ).join( 'ObjectID("' ).split( ')"' ).join( '")' );
+		documentJsonString = documentJsonString.split( '"ObjectID(' ).join( 'ObjectID("' ).split( ')"' ).join( '")' );
 		console.log(documentJsonString);
 		$( '#document' ).text( documentJsonString );
 	} );

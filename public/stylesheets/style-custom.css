@@ -14,6 +14,11 @@
 	width: 45%;
 }
 
+.doc-form textarea {
+	width: 75%;
+	min-height: 150px;
+}
+
 .row-separator {
 	margin: 10px -20px;
 	border-bottom: 1px solid #ccc;
@@ -52,4 +57,24 @@
 
 .doc-array-remove:hover {
 	background-color: #da4f49;
+}
+
+.doc-array-container {
+	position: relative;
+}
+
+.doc-array-add {
+	color: white;
+	padding: 5px;
+	float: right;
+	position: absolute;
+	right: 0px;
+	top: -40px;
+	/*margin-top: -25px;*/
+	background-color: #5bb75b;
+	cursor: pointer;
+}
+
+.doc-array-add i {
+	margin-right: 5px;
 }
