@@ -1,7 +1,9 @@
 $( document ).ready( function () {
 
     var formHtml = '';
-	getFormFromJson( $( '#document' ).text() );
+    if ( $( '.js-doc-form' ).length ) {
+		getFormFromJson( $( '#document' ).text() );
+    }
 
 	function jsonIterate( json, prevKey ) {
 		for ( key in json ) {
@@ -82,10 +84,6 @@ $( document ).ready( function () {
 		} );
 
 		$( '.js-array-add' ).unbind( 'click' ).click( function () {
-			// var arrayHtml = $( this ).parent().find( '.js-doc-array:first' ).clone();
-			// console.log(arrayHtml);
-			// .after( $( this ) );
-			// arrayHtml.insertAfter( $( this ) );
 			$( this ).parent().find( '.js-doc-array:first' ).clone().insertAfter( $( this ) );
 			$( this ).parent().find( '.js-doc-array:first input' ).val( '' );
 		} );
@@ -109,14 +107,25 @@ $( document ).ready( function () {
 		return json
 	}
 
+	function getFinalDocumentString( docString ) {
+		var latLonPattern = /("location"):\["([0-9]{2}.[0-9]{5})","([0-9]{2}.[0-9]{5})"]/;
+		docString = docString.replace( latLonPattern, "$1:[$2,$3]" );
+
+		var ObjectIdPattern = /"(ObjectID)\((\w+)\)"/g
+		docString = docString.replace( ObjectIdPattern, "$1(\"$2\")" );
+
+		return docString;
+	}
+
 	$( '.js-doc-save' ).mouseover( function () {
 		var documentJson = $( '.js-document-form' ).serializeObject();
 		console.log(documentJson)
 
 		documentJson = getFinalDocument( documentJson );
 		var documentJsonString = JSON.stringify( documentJson );
-		documentJsonString = documentJsonString.split( '"ObjectID(' ).join( 'ObjectID("' ).split( ')"' ).join( '")' );
-		console.log(documentJsonString);
+
+		documentJsonString = getFinalDocumentString( documentJsonString );
+
 		$( '#document' ).text( documentJsonString );
 	} );
 

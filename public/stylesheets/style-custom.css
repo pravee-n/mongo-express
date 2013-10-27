@@ -1,6 +1,6 @@
 .coll-doc-textarea {
 	width: 100%;
-	min-height: 150px;
+	min-height: 200px;
 	color: white;
 	background-color: #112435 !important;
 }
@@ -8,6 +8,13 @@
 .doc-form {
 	padding: 20px;
 	background-color: #f0f0f0;
+}
+
+.doc-form label {
+	font-size: 1.5em;
+	font-weight: bold;
+	margin: 10px 0;
+	color: #575757;
 }
 
 .doc-form input {
@@ -20,7 +27,7 @@
 }
 
 .row-separator {
-	margin: 10px -20px;
+	margin: 15px -20px;
 	border-bottom: 1px solid #ccc;
 }
 
