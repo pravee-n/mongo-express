@@ -4,6 +4,7 @@ var bson = require('../bson');
 //view all entries in a collection
 exports.viewCollection = function(req, res, next) {
   //var limit = parseInt(req.params.limit, 10) || config.options.documentsPerPage;
+  console.log(req)
   var limit = config.options.documentsPerPage;
   var skip = parseInt(req.query.skip, 10) || 0;
   var query_options = {
@@ -169,3 +170,26 @@ exports.renameCollection = function(req, res, next) {
     });
   });
 };
+
+exports.getCollectionTemplate = function(req, res, next) {
+  var ObjectID = require('mongodb').ObjectID;
+
+  var newId = new ObjectID();
+  console.log(newId);
+  var templateString = '{"category":[],"details":{"barcode_no":"","brand":"","type":""},"mrp":"","name":"DUMMYDOC","picture_list":[],"product_description":"","product_id":"","stores":[{"availability":"","price":"","store":"","store_id":""}],"_id":ObjectID("526ce1d21d41c816649e2557")}';
+  res.json(templateString);
+  // console.log('hello world')
+  // console.log(req);
+  // var collection = req.collections.eysapp[1]
+  // var collectionName = req.query.collection;
+  // var documentName = req.query.documentName;
+  // console.log(collectionName)
+  // collection.find().toArray(function(err, docs) {
+  //       // assert.equal(null, err);
+        // assert.equal(3, docs.length);
+        // console.log(docs.length)
+
+  //       // db.close();
+      // });
+  // document.println('test');
+}

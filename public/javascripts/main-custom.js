@@ -75,12 +75,14 @@ $( document ).ready( function () {
 		formHtml += '</form>';
 		$( '.js-doc-form' ).append( formHtml );
 		bindFormEvents();
-		// console.log($('.js-document-form').serializeObject());
 	}
 
 	function bindFormEvents() {
 		$( '.js-array-remove' ).unbind( 'click' ).click( function () {
-			$( this ).parent( '.js-doc-array' ).remove();
+			var currentArray = $( this ).parent( '.js-doc-array' );
+			currentArray.slideUp(200, function () {
+				currentArray.remove();
+			} )
 		} );
 
 		$( '.js-array-add' ).unbind( 'click' ).click( function () {
@@ -125,23 +127,27 @@ $( document ).ready( function () {
 		var documentJsonString = JSON.stringify( documentJson );
 
 		documentJsonString = getFinalDocumentString( documentJsonString );
-
+console.log(documentJsonString)
 		$( '#document' ).text( documentJsonString );
 	} );
 
-	// getCollectionTemplate();
+	getCollectionTemplate();
 
-	// function getCollectionTemplate() {
-	// 	$.ajax({
-	//         url: "/test",
-	//         cache: false,
-	//         type: "GET",
-	//         // dataType: "json",
-	//         data: 'collId=526a30321d41c8118d3e544c',
-	//         complete: function(response){
-	//             console.log(response);
-	//         }
-	//     });
-	// }
+	function getCollectionTemplate() {
+		var collection = $( '.db-data-div' ).attr( 'data-collection' );
+		// console.log
+		$.ajax({
+	        url: "testing",
+	        cache: false,
+	        type: "GET",
+	        // dataType: "json",
+	        data: 'collection=' + collection + '&documentName=DUMMYDOC',
+	        complete: function(response){
+	            console.log(response.responseText);
+	            var templateJson = jQuery.parseJSON( response.responseText );
+	            console.log( templateJson );
+	        }
+	    });
+	}
 
 } );

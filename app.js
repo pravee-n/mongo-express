@@ -295,6 +295,7 @@ app.get(config.site.baseUrl+'db/:database/:collection/:document', middleware, ro
 app.put(config.site.baseUrl+'db/:database/:collection/:document', middleware, routes.updateDocument);
 app.del(config.site.baseUrl+'db/:database/:collection/:document', middleware, routes.deleteDocument);
 app.post(config.site.baseUrl+'db/:database/:collection', middleware, routes.addDocument);
+app.get(config.site.baseUrl+'testing', middleware, routes.getCollectionTemplate);
 
 app.get(config.site.baseUrl+'db/:database/:collection', middleware, routes.viewCollection);
 app.put(config.site.baseUrl+'db/:database/:collection', middleware, routes.renameCollection);
@@ -302,13 +303,6 @@ app.del(config.site.baseUrl+'db/:database/:collection', middleware, routes.delet
 app.post(config.site.baseUrl+'db/:database', middleware, routes.addCollection);
 
 app.get(config.site.baseUrl+'db/:database', middleware, routes.viewDatabase);
-
-// app.get('/test', function(req, res, next){
-//   console.log(req.query.collId)
-//   category.find({"_id": req.query.collId});
-//   // db.collection("",function(err,collection){
-//   // console.log(db.collections.find({"_id": req.query.collId}));
-// })
 
 //run as standalone App?
 if (require.main === module){

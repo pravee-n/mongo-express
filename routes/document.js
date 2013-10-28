@@ -3,6 +3,7 @@ var bson = require('../bson');
 
 
 exports.viewDocument = function(req, res, next) {  
+  // console.log(req.collection)
   var ctx = {
     title: 'Viewing Document: ' + req.document._id,
     editorTheme: config.options.editorTheme,
@@ -89,8 +90,3 @@ exports.deleteDocument = function(req, res, next) {
     res.redirect(config.site.baseUrl+'db/' + req.dbName + '/' + req.collectionName);
   });
 };
-
-exports.getCollectionTemplate = function(req, res, next) {
-  console.log("testing");
-  // document.println('test');
-}

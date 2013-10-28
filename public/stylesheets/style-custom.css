@@ -85,3 +85,7 @@
 .doc-array-add i {
 	margin-right: 5px;
 }
+
+.collection-data {
+	display: none;
+}
