@@ -12,6 +12,26 @@ exports.viewDocument = function(req, res, next) {
   res.render('document', ctx);
 };
 
+exports.getReferenceNames = function(req, res, next) {  
+
+  
+  var json = {};
+  json.name = req.document.username;
+  body = JSON.stringify(json);
+  res.setHeader('Content-Type', 'application/json');
+  res.setHeader('Content-Length', body.length);
+  res.end(body);
+
+  /*for (var k in req.document){
+    if (req.document.hasOwnProperty(k)) {
+         console.log("Key is " + k + ", value is" + req.document[k]);
+         console.log("Key is " + typeof(k) + ", value is" + typeof(req.document[k]));
+    }
+  }*/
+
+};
+
+
 
 exports.addDocument = function(req, res, next) {
   var doc = req.body.document;
