@@ -3,6 +3,7 @@ var bson = require('../bson');
 
 
 exports.viewDocument = function(req, res, next) {  
+
   var ctx = {
     title: 'Viewing Document: ' + req.document._id,
     editorTheme: config.options.editorTheme,
@@ -12,9 +13,27 @@ exports.viewDocument = function(req, res, next) {
   res.render('document', ctx);
 };
 
+exports.addNewDocument = function(req, res, next) {
+  var ObjectID = require('mongodb').ObjectID;
+
+  var docString,
+    newId = new ObjectID();
+
+  req.collection.find().toArray(function(err, items) {
+    docString = bson.toString(items[0]);
+    docString = docString.replace( /(ObjectID)\("(\w+)"\)/, '$1\("'+ newId +'"\)' );
+    var ctx = {
+      newId: newId,
+      docString: docString,
+      newDoc: true
+    };
+
+    res.render('document', ctx);
+  });
+}
+
 exports.getReferenceNames = function(req, res, next) {  
 
-  
   var json = {};
   json.name = req.document.username;
   body = JSON.stringify(json);
@@ -34,6 +53,7 @@ exports.getReferenceNames = function(req, res, next) {
 
 
 exports.addDocument = function(req, res, next) {
+
   var doc = req.body.document;
 
   if (doc == undefined || doc.length == 0) {
@@ -109,8 +129,3 @@ exports.deleteDocument = function(req, res, next) {
     res.redirect(config.site.baseUrl+'db/' + req.dbName + '/' + req.collectionName);
   });
 };
-
-exports.getCollectionTemplate = function(req, res, next) {
-  console.log("testing");
-  // document.println('test');
-}

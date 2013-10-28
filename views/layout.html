@@ -24,6 +24,19 @@
   <script src="javascripts/bootstrap.min.js"></script>
   <script src="javascripts/main-custom.js"></script>
   <script src="javascripts/serializer.js"></script>
+  <script type="text/javascript">
+    {% if dbName %}
+      dbName = "{{ dbName }}";
+    {% endif %}
+
+    {% if collectionName %}
+      collectionName = "{{ collectionName }}";
+    {% endif %}
+
+    {% if document %}
+      documentId = "{{ document._id }}";
+    {% endif %}
+  </script>
 
   {% block head %}{% endblock %}
 </head>

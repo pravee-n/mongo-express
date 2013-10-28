@@ -9,14 +9,17 @@ exports.viewCollection = coll.viewCollection;
 exports.addCollection = coll.addCollection;
 exports.deleteCollection = coll.deleteCollection;
 exports.renameCollection = coll.renameCollection;
-fetchAllDocuments = coll.fetchAllDocuments;
+exports.getCollectionTemplate = coll.getCollectionTemplate;
+exports.fetchAllDocuments = coll.fetchAllDocuments;
 exports.fetchFirstDocument = coll.fetchFirstDocument;
+exports.fetchSubcategory = coll.fetchSubcategory;
 
 exports.viewDocument = doc.viewDocument;
 exports.getReferenceNames = doc.getReferenceNames;
 exports.updateDocument = doc.updateDocument;
 exports.deleteDocument = doc.deleteDocument;
 exports.addDocument = doc.addDocument;
+exports.addNewDocument = doc.addNewDocument;
 
 
 //Homepage route

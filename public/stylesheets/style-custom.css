@@ -42,10 +42,6 @@
 	margin: 20px 0 20px 50px;
 }
 
-.indent-left {
-	/*margin-left: 50px;*/
-}
-
 .doc-array {
 	position: relative;
 	/*border: 1px solid black;*/
@@ -84,4 +80,8 @@
 
 .doc-array-add i {
 	margin-right: 5px;
+}
+
+.collection-data {
+	display: none;
 }

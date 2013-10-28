@@ -44,7 +44,9 @@
 {% block content %}
 
 <form class="doc-form js-doc-form" method="POST" action="db/{{ dbName }}/{{ collectionName }}/{{ document._id }}">
-  <input type="hidden" name="_method" value="put">
+  {% if !newDoc %}
+    <input type="hidden" name="_method" value="put">
+  {% endif %}
   <button type="submit" class="js-doc-save btn btn-success btn-large"{# onclick="return checkJSON()"#}>
     <i class="icon-pencil icon-white"></i>
     Save

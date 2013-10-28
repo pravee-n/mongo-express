@@ -86,7 +86,19 @@ exports.viewCollection = function(req, res, next) {
 exports.fetchAllDocuments = function(req, res, next){
 
   req.collection.find().toArray(function(err, items) {
-  
+
+        var body = bson.toString(items);
+        res.setHeader('Content-Type', 'application/json');
+        res.setHeader('Content-Length', body.length);
+        res.end(body);
+
+  });
+}
+
+exports.fetchSubcategory = function(req, res, next){
+console.log(req.query.category)
+  req.collection.find({_id: req.query.category}).toArray(function(err, items) {
+        console.log(items.length)
         var body = bson.toString(items);
         res.setHeader('Content-Type', 'application/json');
         res.setHeader('Content-Length', body.length);
