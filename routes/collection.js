@@ -96,9 +96,10 @@ exports.fetchAllDocuments = function(req, res, next){
   });
 }
 
-exports.fetchSubcategory = function(req, res, next){
+exports.fetchDocument = function(req, res, next){
 
   var doc_id = String(req.document._id);
+  console.log(doc_id)
 
   req.collection.find({_id: new mongodb.ObjectID(doc_id)}).toArray(function(err, items) {
         console.log(items.length)

@@ -20,6 +20,8 @@ exports.addNewDocument = function(req, res, next) {
     newId = new ObjectID();
 
   req.collection.find().toArray(function(err, items) {
+    // console.log('here')
+    // console.log(items.length)
     docString = bson.toString(items[0]);
     docString = docString.replace( /(ObjectID)\("(\w+)"\)/, '$1\("'+ newId +'"\)' );
     var ctx = {

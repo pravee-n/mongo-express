@@ -36,6 +36,11 @@
     {% if document %}
       documentId = "{{ document._id }}";
     {% endif %}
+
+    newDoc =  false;
+    {% if newDoc %}
+      newDoc = true;
+    {% endif %}
   </script>
 
   {% block head %}{% endblock %}

@@ -25,10 +25,10 @@ $( document ).ready( function () {
 	        		var element;
 	        		if ( key.indexOf( 'description' ) > -1 || key.indexOf( 'address' ) > -1 ) {
 	        			element = '<textarea name="' + key + '" type="text"  >'+json[key]+'</textarea>';
-	        		} 
-	        		else if ( referenceFields.indexOf( key ) >= 0 ) {
+	        		}
+	        		else if ( newDoc && referenceFields.indexOf( key ) >= 0 ) {
 	        			if ( key == 'category' ) {
-	        				getAllDocuments(key, fillCategory);
+	        				getAllDocuments(key, populateDropdown, key);
 	        			}
 	        			element = '<select data-key=' + key + ' name="' + key + '" ></select>';
 	        		}
@@ -45,7 +45,10 @@ $( document ).ready( function () {
 
 	function iterateArray( array, prevKey ) {
 		// formHtml += '<div class="indent-block">';
-		if ( array.length == 0 ) {
+		if ( prevKey == 'child_subcategories' && newDoc ) {
+			formHtml += '<select data-key=' + prevKey + ' name="' + prevKey + '" ></select>';
+			getAllDocuments( 'subcategory', populateDropdown, prevKey );
+		} else if ( array.length == 0 ) {
 		    formHtml +=	'<input name="' + prevKey + '[]' + '" type="text" value="" ></input>';
 		}
 		formHtml += '<div class="doc-array-container js-array-container">'+
@@ -129,40 +132,46 @@ $( document ).ready( function () {
 
 	$( '.js-doc-save' ).mouseover( function () {
 		var documentJson = $( '.js-document-form' ).serializeObject();
-console.log(documentJson)
 		documentJson = getFinalDocument( documentJson );
 		var documentJsonString = JSON.stringify( documentJson );
 
 		documentJsonString = getFinalDocumentString( documentJsonString );
-console.log(documentJsonString)
+
 		$( '#document' ).text( documentJsonString );
 	} );
 
-	function getAllDocuments( collection, nextFunction ) {
+	function getAllDocuments( collection, nextFunction, key ) {
 		$.ajax({
 	        url: "/db/"+ dbName + '/' + collection + '/all',
 	        cache: false,
 	        type: "GET",
-	        // dataType: "json",
-	        // data: 'collection=' + collection + '&documentName=DUMMYDOC',
 	        complete: function(response){
-
-	            var allDocs = jQuery.parseJSON( strToJsonFix( response.responseText ) );
-	            nextFunction( allDocs );
+	        	var responseString = response.responseText;
+	        	if ( responseString[responseString.length-1] != ']' ) {
+	        		responseString += ']';
+	        	}
+	        	// console.log(responseString)
+	            var allDocs = jQuery.parseJSON( strToJsonFix( responseString ) );
+	            nextFunction( allDocs, key );
 	        }
 	    });
 	}
 
-	function getSubcategory( category ) {
+	function getIdFromObjectId( ObjectId ) {
+		return ObjectId.replace( /ObjectID\((\w+)\)/, "$1" )
+	}
+
+	function fetchDocument( collection, id, nextFunction ) {
+		var catId = getIdFromObjectId( id );
 		$.ajax({
-	        url: "/db/"+ dbName + '/category/subcat',
+	        url: "/db/"+ dbName + '/' + collection + '/'+ catId +'/fetchDocument',
 	        cache: false,
 	        type: "GET",
 	        // dataType: "json",
-	        data: 'category=' + category,
+	        // data: 'category=' + category,
 	        complete: function(response){
-
 	            var allDocs = jQuery.parseJSON( strToJsonFix( response.responseText ) );
+	            console.log(allDocs)
 	            nextFunction( allDocs );
 	        }
 	    });
@@ -182,17 +191,53 @@ console.log(documentJsonString)
         return nameIdMap;
 	}
 
-	function fillCategory( allDocs ) {
-		var nameIdMap = getNameIdMap( allDocs );
-		var categoryHtml = '<option value="">Choose</option>';
-		for ( var i = 0; i < nameIdMap.length; i++ ) {
-			categoryHtml += '<option value=' + nameIdMap[i].id + ' >' + nameIdMap[i].name + '</option>'
+	function fillSubcategory( allDocs ) {
+		var nameIdMap = [];
+		var allDocs = allDocs[0].child_subcategories;
+		var subcategoryHtml = '<option value="">Choose</option>';
+
+        for ( var i = 0; i < allDocs.length; i++ ) {
+        	var docMap = {
+        		'id': allDocs[i].subcategory,
+        		'name': allDocs[i].subcategory_name
+        	}
+        	nameIdMap.push( docMap );
+        }
+        for ( var i = 0; i < nameIdMap.length; i++ ) {
+			subcategoryHtml += '<option value=' + nameIdMap[i].id + ' >' + nameIdMap[i].name + '</option>'
 		}
-		console.log(categoryHtml)
-		$( 'select[name=category]' ).html( categoryHtml );
-		$( 'select[name=subcategory]' ).html( '<option value="">Choose</option>' );
+		$( 'select[name=subcategory]' ).html( subcategoryHtml );
+		$( 'select[name=subcategory]' ).change( function () {
+			fetchDocument( 'subcategory', $( this ).val(), fillSpecificFilters );
+		} );
+
+	}
+
+	function fillSpecificFilters( allDocs ) {
+		var filters = allDocs[0].filters
+		var formHtml = '<label>Details</label>';
+		for ( var i = 0; i < filters.length; i++ ) {
+			formHtml += '<div class="indent-block">' +
+							'<label>' + filters[i] + '</label>' +
+							'<input name="details[' + filters[i]  + ']" type="text" value="" ></input>' +
+						'</div>'
+		}
+		$( '.js-doc-form' ).append( formHtml );
+	}
+
+	function populateDropdown( data, key ) {
+		// console.log(key)
+		var nameIdMap = getNameIdMap( data );
+		var dropdownHtml = '<option value="">Choose</option>';
+		for ( var i = 0; i < nameIdMap.length; i++ ) {
+			dropdownHtml += '<option value=' + nameIdMap[i].id + ' >' + nameIdMap[i].name + '</option>'
+		}
+		$( 'select[name='+ key +']' ).html( dropdownHtml );
 		$( 'select[name=category]' ).change( function () {
-			getSubcategory( $( this ).val() );
+			fetchDocument(  'category', $( this ).val(), fillSubcategory );
+		} );
+		$( 'select[name=subcategory]' ).change( function () {
+			fetchDocument( 'subcategory', $( this ).val(), fillSpecificFilters );
 		} );
 	}
 
@@ -204,23 +249,6 @@ console.log(documentJsonString)
 	function jsonToStrFix( str ) {
 		var ObjectIdPattern = /"(ObjectID)\((\w+)\)"/g;
 		return str.replace( ObjectIdPattern, "$1(\"$2\")" );
-	}
-
-	// getCollectionTemplate();
-
-	function getCollectionTemplate() {
-		$.ajax({
-	        url: "/db/"+ dbName + '/' + collectionName + '/first',
-	        cache: false,
-	        type: "GET",
-	        // dataType: "json",
-	        // data: 'collection=' + collection + '&documentName=DUMMYDOC',
-	        complete: function(response){
-	            console.log(response);
-	            var templateJson = jQuery.parseJSON( response.responseText );
-	            console.log( templateJson );
-	        }
-	    });
 	}
 
 } );

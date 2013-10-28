@@ -292,7 +292,7 @@ var middleware = function(req, res, next) {
 app.get(config.site.baseUrl, middleware,  routes.index);
 app.get(config.site.baseUrl+'db/:database/:collection/all', middleware, routes.fetchAllDocuments);
 app.get(config.site.baseUrl+'db/:database/:collection/first', middleware, routes.fetchFirstDocument);
-app.get(config.site.baseUrl+'db/:database/:collection/:document/subcat', middleware, routes.fetchSubcategory);
+app.get(config.site.baseUrl+'db/:database/:collection/:document/fetchDocument', middleware, routes.fetchDocument);
 app.get(config.site.baseUrl+'db/:database/:collection/newDocument', middleware, routes.addNewDocument);
 app.get(config.site.baseUrl+'db/:database/:collection/:document', middleware, routes.viewDocument);
 app.put(config.site.baseUrl+'db/:database/:collection/:document', middleware, routes.updateDocument);
