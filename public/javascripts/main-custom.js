@@ -65,7 +65,7 @@ $( document ).ready( function () {
 	function getFormFromJson( jsonString ) {
 		jsonString = jsonString.split( 'ObjectID("' ).join( '"ObjectID(' ).split( '")' ).join( ')"' );
 		var json = jQuery.parseJSON( jsonString );
-		console.log(json)
+		// console.log(json)
 		var documentId = json['_id'];
 		delete json['_id'];
 		json['document_id'] = documentId;
@@ -121,29 +121,26 @@ $( document ).ready( function () {
 
 	$( '.js-doc-save' ).mouseover( function () {
 		var documentJson = $( '.js-document-form' ).serializeObject();
-		console.log(documentJson)
 
 		documentJson = getFinalDocument( documentJson );
 		var documentJsonString = JSON.stringify( documentJson );
 
 		documentJsonString = getFinalDocumentString( documentJsonString );
-console.log(documentJsonString)
+
 		$( '#document' ).text( documentJsonString );
 	} );
 
-	getCollectionTemplate();
+	// getCollectionTemplate();
 
 	function getCollectionTemplate() {
-		var collection = $( '.db-data-div' ).attr( 'data-collection' );
-		// console.log
 		$.ajax({
-	        url: "testing",
+	        url: "/db/"+ dbName + '/' + collectionName + '/first',
 	        cache: false,
 	        type: "GET",
 	        // dataType: "json",
-	        data: 'collection=' + collection + '&documentName=DUMMYDOC',
+	        // data: 'collection=' + collection + '&documentName=DUMMYDOC',
 	        complete: function(response){
-	            console.log(response.responseText);
+	            console.log(response);
 	            var templateJson = jQuery.parseJSON( response.responseText );
 	            console.log( templateJson );
 	        }

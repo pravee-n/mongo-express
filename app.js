@@ -290,12 +290,13 @@ var middleware = function(req, res, next) {
 
 //Routes
 app.get(config.site.baseUrl, middleware,  routes.index);
-
+app.get(config.site.baseUrl+'db/:database/:collection/all', middleware, routes.fetchAllDocuments);
+app.get(config.site.baseUrl+'db/:database/:collection/first', middleware, routes.fetchFirstDocument);
+app.get(config.site.baseUrl+'db/:database/:collection/newDocument', middleware, routes.addNewDocument);
 app.get(config.site.baseUrl+'db/:database/:collection/:document', middleware, routes.viewDocument);
 app.put(config.site.baseUrl+'db/:database/:collection/:document', middleware, routes.updateDocument);
 app.del(config.site.baseUrl+'db/:database/:collection/:document', middleware, routes.deleteDocument);
 app.post(config.site.baseUrl+'db/:database/:collection', middleware, routes.addDocument);
-app.get(config.site.baseUrl+'testing', middleware, routes.getCollectionTemplate);
 
 app.get(config.site.baseUrl+'db/:database/:collection', middleware, routes.viewCollection);
 app.put(config.site.baseUrl+'db/:database/:collection', middleware, routes.renameCollection);
@@ -303,6 +304,8 @@ app.del(config.site.baseUrl+'db/:database/:collection', middleware, routes.delet
 app.post(config.site.baseUrl+'db/:database', middleware, routes.addCollection);
 
 app.get(config.site.baseUrl+'db/:database', middleware, routes.viewDatabase);
+
+app.get(config.site.baseUrl+'db/:database/:collection/:document/name', middleware, routes.getReferenceNames);
 
 //run as standalone App?
 if (require.main === module){
