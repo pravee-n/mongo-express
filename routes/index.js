@@ -12,6 +12,7 @@ exports.renameCollection = coll.renameCollection;
 exports.getCollectionTemplate = coll.getCollectionTemplate;
 exports.fetchAllDocuments = coll.fetchAllDocuments;
 exports.fetchFirstDocument = coll.fetchFirstDocument;
+exports.fetchSubcategory = coll.fetchSubcategory;
 
 exports.viewDocument = doc.viewDocument;
 exports.getReferenceNames = doc.getReferenceNames;
