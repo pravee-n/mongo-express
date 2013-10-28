@@ -1,5 +1,6 @@
 var config = require('../config');
 var bson = require('../bson');
+var mongodb = require('mongodb');
 
 //view all entries in a collection
 exports.viewCollection = function(req, res, next) {
@@ -96,8 +97,10 @@ exports.fetchAllDocuments = function(req, res, next){
 }
 
 exports.fetchSubcategory = function(req, res, next){
-console.log(req.query.category)
-  req.collection.find({_id: req.query.category}).toArray(function(err, items) {
+
+  var doc_id = String(req.document._id);
+
+  req.collection.find({_id: new mongodb.ObjectID(doc_id)}).toArray(function(err, items) {
         console.log(items.length)
         var body = bson.toString(items);
         res.setHeader('Content-Type', 'application/json');
