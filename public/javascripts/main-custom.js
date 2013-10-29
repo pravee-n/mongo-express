@@ -8,6 +8,9 @@ $( document ).ready( function () {
 
 	function jsonIterate( json, prevKey ) {
 		for ( key in json ) {
+			if ( key == 'details' ) {
+				continue;
+			}
 			if ( json[key] instanceof Object) {
 				formHtml += '<label>' + key + '</label>';
 				if ( json[key] instanceof Array ) {
@@ -170,7 +173,11 @@ $( document ).ready( function () {
 	        // dataType: "json",
 	        // data: 'category=' + category,
 	        complete: function(response){
-	            var allDocs = jQuery.parseJSON( strToJsonFix( response.responseText ) );
+	        	var responseString = response.responseText;
+	        	if ( responseString[responseString.length-1] != ']' ) {
+	        		responseString += ']';
+	        	}
+	            var allDocs = jQuery.parseJSON( strToJsonFix( responseString ) );
 	            console.log(allDocs)
 	            nextFunction( allDocs );
 	        }
