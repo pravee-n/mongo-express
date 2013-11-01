@@ -1,8 +1,19 @@
 $( document ).ready( function () {
 
+	if ( newDoc ) {
+		// console.log('new')
+		var currentTemplate = collectionTemplates[collectionName];
+		var currentTemplateString = ( JSON.stringify( currentTemplate ) );
+		currentTemplateString = currentTemplateString.replace( /"(ObjectID)\((\w+)\)"/, '$1\("'+ newId +'"\)' );
+
+		$( '#document' ).text( currentTemplateString )
+
+	}
+
 	var referenceFields = [ 'category', 'child_subcategories', 'subcategory' ];
     var formHtml = '';
     if ( $( '.js-doc-form' ).length ) {
+    	$( '.js-doc-form' ).attr( 'data-collection', collectionName );
 		getFormFromJson( $( '#document' ).text() );
     }
 
@@ -47,13 +58,7 @@ $( document ).ready( function () {
 	}
 
 	function iterateArray( array, prevKey ) {
-		// formHtml += '<div class="indent-block">';
-		if ( prevKey == 'child_subcategories' && newDoc ) {
-			formHtml += '<select data-key=' + prevKey + ' name="' + prevKey + '" ></select>';
-			getAllDocuments( 'subcategory', populateDropdown, prevKey );
-		} else if ( array.length == 0 ) {
-		    formHtml +=	'<input name="' + prevKey + '[]' + '" type="text" value="" ></input>';
-		}
+
 		formHtml += '<div class="doc-array-container js-array-container">'+
 						'<div class="doc-array-add js-array-add" ><i class="icon-plus-sign icon-white" ></i>Add another</div>';
 		for( index in array ) {
@@ -62,8 +67,21 @@ $( document ).ready( function () {
 				formHtml += '<div class="doc-array js-doc-array">'+
 								'<div class="js-array-remove doc-array-remove"><i class="icon-remove icon-white"></i></div>';
 				for ( key in json ) {
-	        		formHtml += '<label data-key=' + key + ' >' + key + '</label>' +
-								'<input name="' + prevKey + '[][' + key  + ']" type="text" value="' + json[key] + '" ></input>';
+					if ( key == "subcategory_name" && newDoc ) {
+		        		formHtml += '';
+					} else {
+		        		formHtml += '<label data-key=' + key + ' >' + key + '</label>';
+					}
+
+	        		if ( key == 'subcategory' && newDoc ) {
+						formHtml += '<select data-key=' + key + ' name="' + prevKey + '[][' + key  + ']" ></select>';
+						getAllDocuments( 'subcategory', populateDropdown, key );
+					} else if ( key == 'subcategory_name' && newDoc ) {
+						formHtml += '<input type="hidden" name="' + prevKey + '[][' + key  + ']" value="' + json[key] + '" ></input>';
+					}  else {
+						formHtml += '<input name="' + prevKey + '[][' + key  + ']" type="text" value="' + json[key] + '" ></input>';
+					}
+
 				}
 				formHtml += '</div>';
 			} else {
@@ -79,7 +97,7 @@ $( document ).ready( function () {
 	function getFormFromJson( jsonString ) {
 		jsonString = strToJsonFix( jsonString );
 		var json = jQuery.parseJSON( jsonString );
-		console.log(json)
+		// console.log(json)
 
 		var documentId = json['_id'];
 		delete json['_id'];
@@ -139,7 +157,7 @@ $( document ).ready( function () {
 		var documentJsonString = JSON.stringify( documentJson );
 
 		documentJsonString = getFinalDocumentString( documentJsonString );
-
+console.log(documentJsonString)
 		$( '#document' ).text( documentJsonString );
 	} );
 
@@ -178,7 +196,7 @@ $( document ).ready( function () {
 	        		responseString += ']';
 	        	}
 	            var allDocs = jQuery.parseJSON( strToJsonFix( responseString ) );
-	            console.log(allDocs)
+	            // console.log(allDocs)
 	            nextFunction( allDocs );
 	        }
 	    });
@@ -214,13 +232,14 @@ $( document ).ready( function () {
 			subcategoryHtml += '<option value=' + nameIdMap[i].id + ' >' + nameIdMap[i].name + '</option>'
 		}
 		$( 'select[name=subcategory]' ).html( subcategoryHtml );
-		$( 'select[name=subcategory]' ).change( function () {
+		$( 'select[name=subcategory]' ).unbind( 'change' ).change( function () {
 			fetchDocument( 'subcategory', $( this ).val(), fillSpecificFilters );
 		} );
 
 	}
 
 	function fillSpecificFilters( allDocs ) {
+		// console.log('filling')
 		var filters = allDocs[0].filters
 		var formHtml = '<label>Details</label>';
 		for ( var i = 0; i < filters.length; i++ ) {
@@ -239,11 +258,11 @@ $( document ).ready( function () {
 		for ( var i = 0; i < nameIdMap.length; i++ ) {
 			dropdownHtml += '<option value=' + nameIdMap[i].id + ' >' + nameIdMap[i].name + '</option>'
 		}
-		$( 'select[name='+ key +']' ).html( dropdownHtml );
+		$( 'select[data-key='+ key +']' ).html( dropdownHtml );
 		$( 'select[name=category]' ).change( function () {
 			fetchDocument(  'category', $( this ).val(), fillSubcategory );
 		} );
-		$( 'select[name=subcategory]' ).change( function () {
+		$( 'select[name=subcategory]' ).unbind( 'change' ).change( function () {
 			fetchDocument( 'subcategory', $( this ).val(), fillSpecificFilters );
 		} );
 	}
