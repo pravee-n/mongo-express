@@ -155,7 +155,9 @@ exports.updateDocument = function(req, res, next) {
     }
 
     req.session.success = "Document updated!";
-    PostCode('a=' + docBSON._id)
+    if (req.collection.collectionName == 'unmapped_product') {
+      PostCode('a=' + docBSON._id)
+    }
     res.redirect(config.site.baseUrl+'db/' + req.dbName + '/' + req.collectionName);
   });
 };
