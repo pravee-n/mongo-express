@@ -86,6 +86,47 @@ exports.addDocument = function(req, res, next) {
 };
 
 
+var querystring = require('querystring');
+var http = require('http');
+var fs = require('fs');
+
+function PostCode(codestring) {
+  console.log(codestring)
+  // Build the post string from an object
+  var post_data = querystring.stringify({
+      'compilation_level' : 'ADVANCED_OPTIMIZATIONS',
+      'output_format': 'json',
+      'output_info': 'compiled_code',
+        'warning_level' : 'QUIET',
+        'js_code' : codestring
+  });
+
+  // An object of options to indicate where to post to
+  var post_options = {
+      host: 'localhost',
+      port: '8001',
+      path: '/dataEntry/nodeUpdate/',
+      method: 'POST',
+      headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'Content-Length': post_data.length
+      }
+  };
+
+  // Set up the request
+  var post_req = http.request(post_options, function(res) {
+      res.setEncoding('utf8');
+      res.on('data', function (chunk) {
+          // console.log('Response: ' + chunk);
+      });
+  });
+
+  // post the data
+  post_req.write(post_data);
+  post_req.end();
+
+}
+
 exports.updateDocument = function(req, res, next) {
   var doc = req.body.document;
 
@@ -114,6 +155,7 @@ exports.updateDocument = function(req, res, next) {
     }
 
     req.session.success = "Document updated!";
+    PostCode('a=' + docBSON._id)
     res.redirect(config.site.baseUrl+'db/' + req.dbName + '/' + req.collectionName);
   });
 };

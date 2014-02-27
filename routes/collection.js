@@ -111,6 +111,24 @@ exports.fetchDocument = function(req, res, next){
   });
 }
 
+exports.getProductIds = function(req, res, next){
+
+  req.collection.find().toArray(function(err, items) {
+
+        var resArray = []
+        for (var i in items) {
+          var resJson = {
+            'name': items[i].name,
+            'productId': items[i].product_id
+          }
+          resArray.push(resJson)
+        }
+        resArray = JSON.stringify(resArray)
+        res.setHeader('Content-Type', 'application/json');
+        res.end(resArray);
+  });
+}
+
 exports.fetchFirstDocument = function(req, res, next){
 
   req.collection.find().toArray(function(err, items) {

@@ -13,6 +13,7 @@ exports.getCollectionTemplate = coll.getCollectionTemplate;
 exports.fetchAllDocuments = coll.fetchAllDocuments;
 exports.fetchFirstDocument = coll.fetchFirstDocument;
 exports.fetchDocument = coll.fetchDocument;
+exports.getProductIds = coll.getProductIds;
 
 exports.viewDocument = doc.viewDocument;
 exports.getReferenceNames = doc.getReferenceNames;

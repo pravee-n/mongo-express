@@ -1,7 +1,8 @@
 $( document ).ready( function () {
+// console.log(collectionName)
+// console.log(documentPage)
 
 	if ( newDoc ) {
-		// console.log('new')
 		var currentTemplate = collectionTemplates[collectionName];
 		var currentTemplateString = ( JSON.stringify( currentTemplate ) );
 		currentTemplateString = currentTemplateString.replace( /"(ObjectID)\((\w+)\)"/, '$1\("'+ newId +'"\)' );
@@ -15,6 +16,65 @@ $( document ).ready( function () {
     if ( $( '.js-doc-form' ).length ) {
     	$( '.js-doc-form' ).attr( 'data-collection', collectionName );
 		getFormFromJson( $( '#document' ).text() );
+    }
+
+    if( collectionName == 'unmapped_product' && documentPage ){
+    	$('input[data-key=product_id]').addClass('product-id-list-toggler')
+    	getProductIds()
+    }
+
+    function getProductIds() {
+    	console.log('sending')
+    	$.ajax({
+	        url: '/db/'+ dbName + '/product/getProductIds',
+	        cache: false,
+	        type: "GET",
+	        complete: function(response){
+	        	console.log(response.responseText)
+	        	productsData = jQuery.parseJSON( response.responseText )
+	        	fillProductsData(productsData)
+	        }
+	    });
+    }
+
+    $('body').click(function(){
+    	$('.prodid-list').hide()
+    });
+
+
+    function fillProductsData(productsData) {
+    	var productsDataHtml = '';
+    	productsDataHtml += '<div class="js-prodid-list prodid-list" >';
+    	for (var i=0; i<productsData.length; i++) {
+    		productsDataHtml += '<div data-pid='+productsData[i].productId+' class="js-prodid prodid-list-each" >' + productsData[i].productId +' - '+ productsData[i].name + '</div>'
+    	}
+    	productsDataHtml += '</div>';
+    	$('.product-id-list-toggler').after(productsDataHtml)
+    	$('.product-id-list-toggler').click(function(e){
+    		$('.prodid-list').show()
+    		findProductId($(this).val())
+    		e.stopPropagation()
+    	})
+    	$('.product-id-list-toggler').keyup(function(){
+    		findProductId($(this).val())
+    	});
+    	$('.js-prodid').click(function(){
+    		console.log($(this).attr('data-pid'))
+    		$('.product-id-list-toggler').val($(this).attr('data-pid'))
+    	})
+    }
+
+    function findProductId(text) {
+    	text = text.toLowerCase()
+    	$('.prodid-list-each').each(function() {
+    		var thisText = $(this).html().toLowerCase();
+    		if (thisText.indexOf(text) != -1) {
+    			$(this).show()
+    		}
+    		else {
+    			$(this).hide()
+    		}
+    	});
     }
 
 	function jsonIterate( json, prevKey ) {
@@ -97,7 +157,6 @@ $( document ).ready( function () {
 	function getFormFromJson( jsonString ) {
 		jsonString = strToJsonFix( jsonString );
 		var json = jQuery.parseJSON( jsonString );
-		// console.log(json)
 
 		var documentId = json['_id'];
 		delete json['_id'];
@@ -157,7 +216,7 @@ $( document ).ready( function () {
 		var documentJsonString = JSON.stringify( documentJson );
 
 		documentJsonString = getFinalDocumentString( documentJsonString );
-console.log(documentJsonString)
+		// console.log(documentJsonString)
 		$( '#document' ).text( documentJsonString );
 	} );
 
@@ -171,7 +230,6 @@ console.log(documentJsonString)
 	        	if ( responseString[responseString.length-1] != ']' ) {
 	        		responseString += ']';
 	        	}
-	        	// console.log(responseString)
 	            var allDocs = jQuery.parseJSON( strToJsonFix( responseString ) );
 	            nextFunction( allDocs, key );
 	        }
@@ -239,7 +297,6 @@ console.log(documentJsonString)
 	}
 
 	function fillSpecificFilters( allDocs ) {
-		// console.log('filling')
 		var filters = allDocs[0].filters
 		var formHtml = '<label>Details</label>';
 		for ( var i = 0; i < filters.length; i++ ) {
@@ -252,7 +309,6 @@ console.log(documentJsonString)
 	}
 
 	function populateDropdown( data, key ) {
-		// console.log(key)
 		var nameIdMap = getNameIdMap( data );
 		var dropdownHtml = '<option value="">Choose</option>';
 		for ( var i = 0; i < nameIdMap.length; i++ ) {

@@ -85,3 +85,22 @@
 .collection-data {
 	display: none;
 }
+
+.prodid-list {
+	overflow: hidden;
+	width:50%;
+	display: none;
+	border: 1px solid #ccc;
+}
+
+.prodid-list-each {
+	/*float: left;*/
+	/*clear: left;*/
+	cursor: pointer;
+	border-bottom: 1px solid #ccc;
+	padding: 3px 5px;
+}
+
+.prodid-list-each:hover {
+	background-color: #ccc;
+}

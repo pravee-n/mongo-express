@@ -20,6 +20,9 @@
   </style>
 
   <script type="text/javascript">
+
+    documentPage = false
+
     {% if dbName %}
       dbName = "{{ dbName }}";
     {% endif %}
@@ -30,6 +33,7 @@
 
     {% if document %}
       documentId = "{{ document._id }}";
+      documentPage = true
     {% endif %}
 
     newDoc =  false;
