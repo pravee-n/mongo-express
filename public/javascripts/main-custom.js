@@ -134,6 +134,10 @@ $( document ).ready( function () {
 			categoryHtml += '<option value=' + nameIdMap[i].id + ' >' + nameIdMap[i].name + '</option>'
 		}
 		$('select[data-key=category]').html(categoryHtml)
+
+		$( 'select[name=category]' ).change( function () {
+			fetchDocument(  'category', $( this ).val(), fillSubcategoryInProductDoc );
+		} );
     }
 
   //   if ( $( '.js-doc-form' ).length ) {
@@ -360,7 +364,7 @@ $( document ).ready( function () {
 		bindFormEvents(firstElement)
 	}
 
-	function fillSubcategory( allDocs ) {
+	function fillSubcategoryInProductDoc( allDocs ) {
 		var nameIdMap = [];
 		var allDocs = allDocs[0].child_subcategories;
 		var subcategoryHtml = '<option value="">Choose</option>';
@@ -377,19 +381,16 @@ $( document ).ready( function () {
 		}
 		$( 'select[name=subcategory]' ).html( subcategoryHtml );
 		$( 'select[name=subcategory]' ).unbind( 'change' ).change( function () {
-			fetchDocument( 'subcategory', $( this ).val(), fillSpecificFilters );
+			fetchDocument( 'subcategory', $( this ).val(), fillSpecificFiltersInProductDoc );
 		} );
 
 	}
 
-	function fillSpecificFilters( allDocs ) {
+	function fillSpecificFiltersInProductDoc( allDocs ) {
 		var filters = allDocs[0].filters
-		var formHtml = '<label>Details</label>';
 		for ( var i = 0; i < filters.length; i++ ) {
-			formHtml += '<div class="indent-block">' +
-							'<label>' + filters[i] + '</label>' +
-							'<input name="details[' + filters[i]  + ']" type="text" value="" ></input>' +
-						'</div>'
+			formHtml += '<label>' + filters[i] + '</label>' +
+						'<input name="" type="text" value="" ></input>';
 		}
 		$( '.js-doc-form' ).append( formHtml );
 	}
