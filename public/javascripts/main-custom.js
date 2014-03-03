@@ -1,6 +1,4 @@
 $( document ).ready( function () {
-// console.log(collectionName)
-// console.log(documentPage)
 
 	if ( newDoc ) {
 		var currentTemplate = collectionTemplates[collectionName];
@@ -13,6 +11,7 @@ $( document ).ready( function () {
 
 	var referenceFields = [ 'category', 'child_subcategories', 'subcategory' ];
     var formHtml = '';
+
     if ( $( '.js-doc-form' ).length ) {
     	$( '.js-doc-form' ).attr( 'data-collection', collectionName );
 		getFormFromJson( $( '#document' ).text() );
