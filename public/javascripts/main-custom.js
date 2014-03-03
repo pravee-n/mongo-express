@@ -1,21 +1,145 @@
 $( document ).ready( function () {
 
-	if ( newDoc ) {
-		var currentTemplate = collectionTemplates[collectionName];
-		var currentTemplateString = ( JSON.stringify( currentTemplate ) );
-		currentTemplateString = currentTemplateString.replace( /"(ObjectID)\((\w+)\)"/, '$1\("'+ newId +'"\)' );
+	var arrayFields = []
 
-		$( '#document' ).text( currentTemplateString )
+	// if ( newDoc ) {
+	// 	var currentTemplate = collectionTemplates[collectionName];
+	// 	arrayFields = collectionArrayFields[collectionName]
+	// 	var currentTemplateString = ( JSON.stringify( currentTemplate ) );
+	// 	currentTemplateString = currentTemplateString.replace( /"(ObjectID)\((\w+)\)"/, '$1\("'+ newId +'"\)' );
 
-	}
+	// 	$( '#document' ).text( currentTemplateString )
+
+	// }
 
 	var referenceFields = [ 'category', 'child_subcategories', 'subcategory' ];
     var formHtml = '';
 
-    if ( $( '.js-doc-form' ).length ) {
-    	$( '.js-doc-form' ).attr( 'data-collection', collectionName );
-		getFormFromJson( $( '#document' ).text() );
+    if( $( '.js-doc-form' ).length ) {
+    	var currentTemplateString = '';
+    	var currentTemplate;
+    	if ( newDoc ) {
+			currentTemplate = collectionTemplates[collectionName];
+			currentTemplateString = ( JSON.stringify( currentTemplate ) );
+			currentTemplateString = currentTemplateString.replace( /"(ObjectID)\((\w+)\)"/, '$1\("'+ newId +'"\)' );
+		} else {
+			currentTemplateString = $( '#document' ).val()
+		}
+		currentTemplateString = strToJsonFix( currentTemplateString )
+		currentTemplate = jQuery.parseJSON ( currentTemplateString )
+		arrayFields = collectionArrayFields[collectionName]
+
+		if ( collectionName == 'subcategory' ) {
+			renderSubcategory(currentTemplate, arrayFields)
+		} else if ( collectionName == 'category' ) {
+			renderCategory( currentTemplate, arrayFields )
+		} else if ( collectionName == 'product' ) {
+			renderProduct( currentTemplate, arrayFields )
+		}
     }
+
+    function renderSubcategory(currentTemplate, arrayFields) {
+
+		formHtml = '<form class="js-document-form">';
+		var firstElement = '';
+
+		for (key in currentTemplate) {
+			if ( $.inArray(key, arrayFields) > -1 ) {
+				formHtml += '<label data-key=' + key + ' >' + key + '</label>';
+				formHtml += '<div class="doc-array-container js-array-container">'+
+								'<div class="doc-array-add js-array-add" ><i class="icon-plus-sign icon-white" ></i>Add another</div>';
+				for (index in currentTemplate[key]) {
+					firstElement = '<div class="doc-array js-doc-array">' +
+										'<div class="js-array-remove doc-array-remove"><i class="icon-remove icon-white"></i></div>' +
+			        					'<input data-key=' + key + ' name="' + key + '[]" type="text" value="' + currentTemplate[key][index] + '" ></input>' +
+			        				'</div>';
+					formHtml += firstElement;
+				}
+				formHtml += '</div>'
+			} else {
+				formHtml += '<label>' + key + '</label>'+
+							'<input type="text" name="' + key + '" value="' + currentTemplate[key] + '" >';
+			}
+		}
+
+		formHtml += '</form>';
+		$( '.js-doc-form' ).append( formHtml );
+		bindFormEvents(firstElement)
+    }
+
+    function renderCategory(currentTemplate, arrayFields) {
+
+		formHtml = '<form class="js-document-form">';
+		var firstElement = '';
+
+		for (key in currentTemplate) {
+			if ( $.inArray(key, arrayFields) > -1 ) {
+				formHtml += '<label data-key=' + key + ' >' + key + '</label>';
+				formHtml += '<div class="doc-array-container js-array-container">'+
+								'<div class="doc-array-add js-array-add" ><i class="icon-plus-sign icon-white" ></i>Add another</div>';
+				for (index in currentTemplate[key]) {
+					firstElement = '<div class="doc-array js-doc-array">' +
+										'<div class="js-array-remove doc-array-remove"><i class="icon-remove icon-white"></i></div>' +
+										'<input type="hidden" data-key=' + key + ' name="' + key + '[][subcategory_name]" ></input>' +
+										'<select data-key=' + key + ' name="' + key + '[][subcategory]" ></select>' +
+			        				'</div>';
+					formHtml += firstElement;
+				}
+				formHtml += '</div>'
+			} else {
+				formHtml += '<label>' + key + '</label>'+
+							'<input type="text" name="' + key + '" value="' + currentTemplate[key] + '" >';
+			}
+		}
+
+		formHtml += '</form>';
+		$( '.js-doc-form' ).append( formHtml );
+
+		getAllDocuments('subcategory', fillSubcategoryInCategoryDoc, 'category');
+		// firstElement = 
+		// bindFormEvents(firstElement)
+    }
+
+    function renderProduct(currentTemplate, arrayFields) {
+
+		formHtml = '<form class="js-document-form">';
+		var firstElement = '';
+
+		for (key in currentTemplate) {
+			formHtml += '<label>' + key + '</label>';
+
+			if (key == 'product description') {
+				formHtml += '<textarea name="' + key + '" type="text"  >'+ currentTemplate[key] +'</textarea>';
+			} else if ( key == 'category' || key == 'subcategory' ) {
+				formHtml += '<select data-key=' + key + ' name="' + key + '" ></select>'
+			}
+			else {
+				formHtml += '<input type="text" name="' + key + '" value="' + currentTemplate[key] + '" >';
+			}
+		}
+
+		formHtml += '</form>';
+		$( '.js-doc-form' ).append( formHtml );
+
+		getAllDocuments( 'category', fillCategoryInProductDoc )
+		bindFormEvents(firstElement)
+    }
+
+    function fillCategoryInProductDoc(allDocs) {
+    	console.log(allDocs)
+    	var nameIdMap = getNameIdMap( allDocs )
+    	console.log(nameIdMap)
+    	var categoryHtml = '<option value="0">Choose category</option>';
+    	for ( var i = 0; i < nameIdMap.length; i++ ) {
+			categoryHtml += '<option value=' + nameIdMap[i].id + ' >' + nameIdMap[i].name + '</option>'
+		}
+		$('select[data-key=category]').html(categoryHtml)
+    }
+
+  //   if ( $( '.js-doc-form' ).length ) {
+  //   	$( '.js-doc-form' ).attr( 'data-collection', collectionName );
+		// getFormFromJson( $( '#document' ).text() );
+  //   }
 
     if( collectionName == 'unmapped_product' && documentPage ){
     	$('input[data-key=product_id]').addClass('product-id-list-toggler')
@@ -76,83 +200,6 @@ $( document ).ready( function () {
     	});
     }
 
-	function jsonIterate( json, prevKey ) {
-		for ( key in json ) {
-			if ( key == 'details' ) {
-				continue;
-			}
-			if ( json[key] instanceof Object) {
-				formHtml += '<label>' + key + '</label>';
-				if ( json[key] instanceof Array ) {
-					iterateArray( json[key], key );
-				} else {
-	            	jsonIterate( json[key], key )
-				}
-	        } else {
-	        	if ( prevKey ) {
-	        		formHtml += '<div class="indent-block">' +
-	        						'<label data-key=' + key + ' >' + key + '</label>' +
-		        					'<input data-key=' + key + ' name="' + prevKey + '[' + key + ']' + '" type="text" value="' + json[key] + '" ></input>' +
-		        				'</div>';
-	        	} else {
-	        		var element;
-	        		if ( key.indexOf( 'description' ) > -1 || key.indexOf( 'address' ) > -1 ) {
-	        			element = '<textarea name="' + key + '" type="text"  >'+json[key]+'</textarea>';
-	        		}
-	        		else if ( newDoc && referenceFields.indexOf( key ) >= 0 ) {
-	        			if ( key == 'category' ) {
-	        				getAllDocuments(key, populateDropdown, key);
-	        			}
-	        			element = '<select data-key=' + key + ' name="' + key + '" ></select>';
-	        		}
-	        		else {
-	        			element = '<input data-key=' + key + ' name="' + key + '" type="text" value="' + json[key] + '" ></input>';
-	        		}
-	        		formHtml += '<label data-key=' + key + ' >' + key + '</label>' +
-		        				 element +
-		        				'<div class="row-separator"></div>';
-	        	}
-	        }
-		}
-	}
-
-	function iterateArray( array, prevKey ) {
-
-		formHtml += '<div class="doc-array-container js-array-container">'+
-						'<div class="doc-array-add js-array-add" ><i class="icon-plus-sign icon-white" ></i>Add another</div>';
-		for( index in array ) {
-			if ( array[index] instanceof Object ) {
-				var json = array[index]
-				formHtml += '<div class="doc-array js-doc-array">'+
-								'<div class="js-array-remove doc-array-remove"><i class="icon-remove icon-white"></i></div>';
-				for ( key in json ) {
-					if ( key == "subcategory_name" && newDoc ) {
-		        		formHtml += '';
-					} else {
-		        		formHtml += '<label data-key=' + key + ' >' + key + '</label>';
-					}
-
-	        		if ( key == 'subcategory' && newDoc ) {
-						formHtml += '<select data-key=' + key + ' name="' + prevKey + '[][' + key  + ']" ></select>';
-						getAllDocuments( 'subcategory', populateDropdown, key );
-					} else if ( key == 'subcategory_name' && newDoc ) {
-						formHtml += '<input type="hidden" name="' + prevKey + '[][' + key  + ']" value="' + json[key] + '" ></input>';
-					}  else {
-						formHtml += '<input name="' + prevKey + '[][' + key  + ']" type="text" value="' + json[key] + '" ></input>';
-					}
-
-				}
-				formHtml += '</div>';
-			} else {
-		        formHtml += '<div class="doc-array js-doc-array">'+
-		        				'<div class="js-array-remove doc-array-remove"><i class="icon-remove icon-white"></i></div>'+
-		        				'<input name="' + prevKey + '[]' + '" type="text" value="' + array[index] + '" ></input>'+
-		        			'</div>';
-			}
-		}
-		formHtml += '</div>';
-	}
-
 	function getFormFromJson( jsonString ) {
 		jsonString = strToJsonFix( jsonString );
 		var json = jQuery.parseJSON( jsonString );
@@ -168,17 +215,28 @@ $( document ).ready( function () {
 		bindFormEvents();
 	}
 
-	function bindFormEvents() {
+	function bindFormEvents(firstElement) {
+
+		console.log(firstElement)
+		bindRemoveButton()
+
+		if (firstElement != '') {
+			$( '.js-array-add' ).unbind( 'click' ).click( function () {
+				// $( this ).parent().find( '.js-doc-array:first' ).clone().insertAfter( $( this ) );
+				// $('.js-array-container').append($(firstElement))
+				$( firstElement ).insertAfter( $( this ) );
+				// $( this ).parent().find( '.js-doc-array:first input' ).val( '' );
+				bindRemoveButton()
+			} );
+		}
+	}
+
+	function bindRemoveButton() {
 		$( '.js-array-remove' ).unbind( 'click' ).click( function () {
 			var currentArray = $( this ).parent( '.js-doc-array' );
 			currentArray.slideUp(200, function () {
 				currentArray.remove();
 			} )
-		} );
-
-		$( '.js-array-add' ).unbind( 'click' ).click( function () {
-			$( this ).parent().find( '.js-doc-array:first' ).clone().insertAfter( $( this ) );
-			$( this ).parent().find( '.js-doc-array:first input' ).val( '' );
 		} );
 	}
 
@@ -226,6 +284,7 @@ $( document ).ready( function () {
 	        type: "GET",
 	        complete: function(response){
 	        	var responseString = response.responseText;
+	        	// console.log(responseString)
 	        	if ( responseString[responseString.length-1] != ']' ) {
 	        		responseString += ']';
 	        	}
@@ -271,6 +330,34 @@ $( document ).ready( function () {
         }
 
         return nameIdMap;
+	}
+
+	function fillSubcategoryInCategoryDoc( allDocs ) {
+		var nameIdMap = [];
+		var subcategoryHtml = '<option value="">Choose subcategory</option>';
+
+        for ( var i = 0; i < allDocs.length; i++ ) {
+        	var docMap = {
+        		'id': allDocs[i]._id,
+        		'name': allDocs[i].name
+        	}
+        	nameIdMap.push( docMap );
+        }
+        // console.log(nameIdMap)
+        for ( var i = 0; i < nameIdMap.length; i++ ) {
+			subcategoryHtml += '<option value=' + nameIdMap[i].id + ' >' + nameIdMap[i].name + '</option>'
+		}
+		$( 'select[data-key=child_subcategories]' ).html( subcategoryHtml );
+		$( 'select[data-key=child_subcategories]' ).unbind( 'change' ).change( function () {
+			var optionText = $( 'select[data-key=child_subcategories] option:selected' ).text();
+			$(this).parent().find('input[type="hidden"]').val(optionText);
+		} );
+
+		// console.log($( '.js-doc-array' ).next())
+		// console.log($('.js-array-add'))
+		var firstElement = $( '.js-array-add' ).parent().find( '.js-doc-array:first' ).clone()
+		// console.log('binding')
+		bindFormEvents(firstElement)
 	}
 
 	function fillSubcategory( allDocs ) {
@@ -331,5 +418,82 @@ $( document ).ready( function () {
 		var ObjectIdPattern = /"(ObjectID)\((\w+)\)"/g;
 		return str.replace( ObjectIdPattern, "$1(\"$2\")" );
 	}
+
+	// function jsonIterate( json, prevKey ) {
+	// 	for ( key in json ) {
+	// 		if ( key == 'details' ) {
+	// 			continue;
+	// 		}
+	// 		if ( json[key] instanceof Object) {
+	// 			formHtml += '<label>' + key + '</label>';
+	// 			if ( json[key] instanceof Array ) {
+	// 				iterateArray( json[key], key );
+	// 			} else {
+	//             	jsonIterate( json[key], key )
+	// 			}
+	//         } else {
+	//         	if ( prevKey ) {
+	//         		formHtml += '<div class="indent-block">' +
+	//         						'<label data-key=' + key + ' >' + key + '</label>' +
+	// 	        					'<input data-key=' + key + ' name="' + prevKey + '[' + key + ']' + '" type="text" value="' + json[key] + '" ></input>' +
+	// 	        				'</div>';
+	//         	} else {
+	//         		var element;
+	//         		if ( key.indexOf( 'description' ) > -1 || key.indexOf( 'address' ) > -1 ) {
+	//         			element = '<textarea name="' + key + '" type="text"  >'+json[key]+'</textarea>';
+	//         		}
+	//         		else if ( newDoc && referenceFields.indexOf( key ) >= 0 ) {
+	//         			if ( key == 'category' ) {
+	//         				getAllDocuments(key, populateDropdown, key);
+	//         			}
+	//         			element = '<select data-key=' + key + ' name="' + key + '" ></select>';
+	//         		}
+	//         		else {
+	//         			element = '<input data-key=' + key + ' name="' + key + '" type="text" value="' + json[key] + '" ></input>';
+	//         		}
+	//         		formHtml += '<label data-key=' + key + ' >' + key + '</label>' +
+	// 	        				 element +
+	// 	        				'<div class="row-separator"></div>';
+	//         	}
+	//         }
+	// 	}
+	// }
+
+	// function iterateArray( array, prevKey ) {
+
+	// 	formHtml += '<div class="doc-array-container js-array-container">'+
+	// 					'<div class="doc-array-add js-array-add" ><i class="icon-plus-sign icon-white" ></i>Add another</div>';
+	// 	for( index in array ) {
+	// 		if ( array[index] instanceof Object ) {
+	// 			var json = array[index]
+	// 			formHtml += '<div class="doc-array js-doc-array">'+
+	// 							'<div class="js-array-remove doc-array-remove"><i class="icon-remove icon-white"></i></div>';
+	// 			for ( key in json ) {
+	// 				if ( key == "subcategory_name" && newDoc ) {
+	// 	        		formHtml += '';
+	// 				} else {
+	// 	        		formHtml += '<label data-key=' + key + ' >' + key + '</label>';
+	// 				}
+
+	//         		if ( key == 'subcategory' && newDoc ) {
+	// 					formHtml += '<select data-key=' + key + ' name="' + prevKey + '[][' + key  + ']" ></select>';
+	// 					getAllDocuments( 'subcategory', populateDropdown, key );
+	// 				} else if ( key == 'subcategory_name' && newDoc ) {
+	// 					formHtml += '<input type="hidden" name="' + prevKey + '[][' + key  + ']" value="' + json[key] + '" ></input>';
+	// 				}  else {
+	// 					formHtml += '<input name="' + prevKey + '[][' + key  + ']" type="text" value="' + json[key] + '" ></input>';
+	// 				}
+
+	// 			}
+	// 			formHtml += '</div>';
+	// 		} else {
+	// 	        formHtml += '<div class="doc-array js-doc-array">'+
+	// 	        				'<div class="js-array-remove doc-array-remove"><i class="icon-remove icon-white"></i></div>'+
+	// 	        				'<input name="' + prevKey + '[]' + '" type="text" value="' + array[index] + '" ></input>'+
+	// 	        			'</div>';
+	// 		}
+	// 	}
+	// 	formHtml += '</div>';
+	// }
 
 } );

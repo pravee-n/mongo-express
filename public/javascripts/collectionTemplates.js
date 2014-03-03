@@ -21,15 +21,7 @@ var collectionTemplates = {
 	    ],
 	    "product_description": "",
 	    "category": "",
-	    "subcategory": "",
-	    "stores": [
-	        {
-	            "store_id": "",
-	            "store": "",
-	            "price": "",
-	            "availability": ""
-	        }
-	    ]
+	    "subcategory": ""
 	},
 
 	store : {
@@ -59,4 +51,13 @@ var collectionTemplates = {
 	        "filter_name"
 	    ]
 	}
+}
+
+var collectionArrayFields = {
+	subcategory : [
+		"filters"
+	],
+	category : [
+		'child_subcategories'
+	]
 }
