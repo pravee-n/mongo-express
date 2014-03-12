@@ -1,16 +1,30 @@
 $( document ).ready( function () {
 
-	var arrayFields = []
+	var arrayFields = [],
+		categoryData,
+		subcategoryData;
 
-	// if ( newDoc ) {
-	// 	var currentTemplate = collectionTemplates[collectionName];
-	// 	arrayFields = collectionArrayFields[collectionName]
-	// 	var currentTemplateString = ( JSON.stringify( currentTemplate ) );
-	// 	currentTemplateString = currentTemplateString.replace( /"(ObjectID)\((\w+)\)"/, '$1\("'+ newId +'"\)' );
+	getAllDocuments('category', categoryDataLoaded)
+	getAllDocuments('subcategory', subcategoryDataLoaded)
 
-	// 	$( '#document' ).text( currentTemplateString )
+	function categoryDataLoaded( allDocs ) {
+		categoryData = allDocs;
+		$('body').trigger('categoryDataLoaded');
+	}
 
-	// }
+	function subcategoryDataLoaded( allDocs ) {
+		subcategoryData = allDocs;
+		$('body').trigger('subcategoryDataLoaded');
+		fillSubcategoryInCategoryDoc( subcategoryData );
+	}
+
+	$('body').on('categoryDataLoaded', function() {
+		console.log('categoryloaded')
+	})
+
+	$('body').on('subcategoryDataLoaded', function() {
+		console.log('subcategoryloaded')
+	})
 
 	var referenceFields = [ 'category', 'child_subcategories', 'subcategory' ];
     var formHtml = '';
@@ -32,6 +46,7 @@ $( document ).ready( function () {
 		if ( collectionName == 'subcategory' ) {
 			renderSubcategory(currentTemplate, arrayFields)
 		} else if ( collectionName == 'category' ) {
+
 			renderCategory( currentTemplate, arrayFields )
 		} else if ( collectionName == 'product' ) {
 			renderProduct( currentTemplate, arrayFields )
@@ -68,9 +83,10 @@ $( document ).ready( function () {
     }
 
     function renderCategory(currentTemplate, arrayFields) {
-
 		formHtml = '<form class="js-document-form">';
-		var firstElement = '';
+		var firstElement = '',
+			argsList = [],
+			subcatNames = [];
 
 		for (key in currentTemplate) {
 			if ( $.inArray(key, arrayFields) > -1 ) {
@@ -81,9 +97,10 @@ $( document ).ready( function () {
 					firstElement = '<div class="doc-array js-doc-array">' +
 										'<div class="js-array-remove doc-array-remove"><i class="icon-remove icon-white"></i></div>' +
 										'<input type="hidden" data-key=' + key + ' name="' + key + '[][subcategory_name]" ></input>' +
-										'<select data-key=' + key + ' name="' + key + '[][subcategory]" ></select>' +
+										'<select data-identifier="subcat-dropdown" data-key=' + key + ' name="' + key + '[][subcategory]" ></select>' +
 			        				'</div>';
 					formHtml += firstElement;
+					subcatNames.push(currentTemplate[key][index].subcategory_name)
 				}
 				formHtml += '</div>'
 			} else {
@@ -95,7 +112,8 @@ $( document ).ready( function () {
 		formHtml += '</form>';
 		$( '.js-doc-form' ).append( formHtml );
 
-		getAllDocuments('subcategory', fillSubcategoryInCategoryDoc, 'category');
+		// argsList.push(subcatNames)
+		// getAllDocuments('subcategory', fillSubcategoryInCategoryDoc, argsList);
 		// firstElement = 
 		// bindFormEvents(firstElement)
     }
@@ -204,46 +222,6 @@ $( document ).ready( function () {
     	});
     }
 
-	function getFormFromJson( jsonString ) {
-		jsonString = strToJsonFix( jsonString );
-		var json = jQuery.parseJSON( jsonString );
-
-		var documentId = json['_id'];
-		delete json['_id'];
-		json['document_id'] = documentId;
-		formHtml = '<form class="js-document-form">';
-		jsonIterate( json );
-
-		formHtml += '</form>';
-		$( '.js-doc-form' ).append( formHtml );
-		bindFormEvents();
-	}
-
-	function bindFormEvents(firstElement) {
-
-		console.log(firstElement)
-		bindRemoveButton()
-
-		if (firstElement != '') {
-			$( '.js-array-add' ).unbind( 'click' ).click( function () {
-				// $( this ).parent().find( '.js-doc-array:first' ).clone().insertAfter( $( this ) );
-				// $('.js-array-container').append($(firstElement))
-				$( firstElement ).insertAfter( $( this ) );
-				// $( this ).parent().find( '.js-doc-array:first input' ).val( '' );
-				bindRemoveButton()
-			} );
-		}
-	}
-
-	function bindRemoveButton() {
-		$( '.js-array-remove' ).unbind( 'click' ).click( function () {
-			var currentArray = $( this ).parent( '.js-doc-array' );
-			currentArray.slideUp(200, function () {
-				currentArray.remove();
-			} )
-		} );
-	}
-
 	function getFinalDocument( json ) {
 		var documentId = json['document_id'];
 		delete json['document_id'];
@@ -281,7 +259,7 @@ $( document ).ready( function () {
 		$( '#document' ).text( documentJsonString );
 	} );
 
-	function getAllDocuments( collection, nextFunction, key ) {
+	function getAllDocuments( collection, nextFunction, argsList ) {
 		$.ajax({
 	        url: "/db/"+ dbName + '/' + collection + '/all',
 	        cache: false,
@@ -293,7 +271,7 @@ $( document ).ready( function () {
 	        		responseString += ']';
 	        	}
 	            var allDocs = jQuery.parseJSON( strToJsonFix( responseString ) );
-	            nextFunction( allDocs, key );
+	            nextFunction( allDocs, argsList );
 	        }
 	    });
 	}
@@ -336,31 +314,49 @@ $( document ).ready( function () {
         return nameIdMap;
 	}
 
-	function fillSubcategoryInCategoryDoc( allDocs ) {
+	function fillSubcategoryInCategoryDoc( subcategoryData ) {
+		if ( !$( 'select[data-identifier=subcat-dropdown]' ).length ) {
+			return
+		}
+		console.log('here')
 		var nameIdMap = [];
 		var subcategoryHtml = '<option value="">Choose subcategory</option>';
+		// var localSubcategoryData = subcategoryData
+		// var subcatNames = argsList[0]
+		// console.log(subcatNames)
 
-        for ( var i = 0; i < allDocs.length; i++ ) {
+        for ( var i = 0; i < subcategoryData.length; i++ ) {
         	var docMap = {
-        		'id': allDocs[i]._id,
-        		'name': allDocs[i].name
+        		'id': subcategoryData[i]._id,
+        		'name': subcategoryData[i].name
         	}
         	nameIdMap.push( docMap );
         }
-        // console.log(nameIdMap)
+
         for ( var i = 0; i < nameIdMap.length; i++ ) {
+        	// var selected = '';
+        	// // console.log(selected)
+        	// console.log(nameIdMap[i].name)
+        	// // console.log(subcatNames)
+        	// // console.log( nameIdMap[i].name + ':' + subcatNames[j] + ':' + selected)
+        	// for ( var j = 0; j < subcatNames.length; j++ ) {
+        	// 	if ( subcatNames[j] == nameIdMap[i].name ) {
+        	// 		selected = 'selected';
+        	// 		console.log( nameIdMap[i].name + ':' + subcatNames[j] + ':' + selected)
+        	// 		subcatNames.splice( j, 1 )
+        	// 		console.log(subcatNames)
+        	// 		break;
+        	// 	}
+        	// }
+
+        	// console.log( nameIdMap[i].name + ':' + selected)
+
 			subcategoryHtml += '<option value=' + nameIdMap[i].id + ' >' + nameIdMap[i].name + '</option>'
 		}
 		$( 'select[data-key=child_subcategories]' ).html( subcategoryHtml );
-		$( 'select[data-key=child_subcategories]' ).unbind( 'change' ).change( function () {
-			var optionText = $( 'select[data-key=child_subcategories] option:selected' ).text();
-			$(this).parent().find('input[type="hidden"]').val(optionText);
-		} );
 
-		// console.log($( '.js-doc-array' ).next())
-		// console.log($('.js-array-add'))
+		bindSubcatDropdownEvent()
 		var firstElement = $( '.js-array-add' ).parent().find( '.js-doc-array:first' ).clone()
-		// console.log('binding')
 		bindFormEvents(firstElement)
 	}
 
@@ -420,81 +416,45 @@ $( document ).ready( function () {
 		return str.replace( ObjectIdPattern, "$1(\"$2\")" );
 	}
 
-	// function jsonIterate( json, prevKey ) {
-	// 	for ( key in json ) {
-	// 		if ( key == 'details' ) {
-	// 			continue;
-	// 		}
-	// 		if ( json[key] instanceof Object) {
-	// 			formHtml += '<label>' + key + '</label>';
-	// 			if ( json[key] instanceof Array ) {
-	// 				iterateArray( json[key], key );
-	// 			} else {
-	//             	jsonIterate( json[key], key )
-	// 			}
-	//         } else {
-	//         	if ( prevKey ) {
-	//         		formHtml += '<div class="indent-block">' +
-	//         						'<label data-key=' + key + ' >' + key + '</label>' +
-	// 	        					'<input data-key=' + key + ' name="' + prevKey + '[' + key + ']' + '" type="text" value="' + json[key] + '" ></input>' +
-	// 	        				'</div>';
-	//         	} else {
-	//         		var element;
-	//         		if ( key.indexOf( 'description' ) > -1 || key.indexOf( 'address' ) > -1 ) {
-	//         			element = '<textarea name="' + key + '" type="text"  >'+json[key]+'</textarea>';
-	//         		}
-	//         		else if ( newDoc && referenceFields.indexOf( key ) >= 0 ) {
-	//         			if ( key == 'category' ) {
-	//         				getAllDocuments(key, populateDropdown, key);
-	//         			}
-	//         			element = '<select data-key=' + key + ' name="' + key + '" ></select>';
-	//         		}
-	//         		else {
-	//         			element = '<input data-key=' + key + ' name="' + key + '" type="text" value="' + json[key] + '" ></input>';
-	//         		}
-	//         		formHtml += '<label data-key=' + key + ' >' + key + '</label>' +
-	// 	        				 element +
-	// 	        				'<div class="row-separator"></div>';
-	//         	}
-	//         }
-	// 	}
-	// }
+	function bindFormEvents(firstElement) {
 
-	// function iterateArray( array, prevKey ) {
+		console.log(firstElement)
+		bindRemoveButton()
 
-	// 	formHtml += '<div class="doc-array-container js-array-container">'+
-	// 					'<div class="doc-array-add js-array-add" ><i class="icon-plus-sign icon-white" ></i>Add another</div>';
-	// 	for( index in array ) {
-	// 		if ( array[index] instanceof Object ) {
-	// 			var json = array[index]
-	// 			formHtml += '<div class="doc-array js-doc-array">'+
-	// 							'<div class="js-array-remove doc-array-remove"><i class="icon-remove icon-white"></i></div>';
-	// 			for ( key in json ) {
-	// 				if ( key == "subcategory_name" && newDoc ) {
-	// 	        		formHtml += '';
-	// 				} else {
-	// 	        		formHtml += '<label data-key=' + key + ' >' + key + '</label>';
-	// 				}
+		if (firstElement != '') {
+			$( '.js-array-add' ).unbind( 'click' ).click( function () {
+				// $( this ).parent().find( '.js-doc-array:first' ).clone().insertAfter( $( this ) );
+				// $('.js-array-container').append($(firstElement)[0].outerHTML)
+				// console.log($(firstElement)[0].outerHTML)
+				$( this ).after($(firstElement)[0].outerHTML)
+				bindSubcatDropdownEvent()
+				// $( firstElement ).insertAfter( $( this ) );
+				// $( this ).parent().find( '.js-doc-array:first input' ).val( '' );
+				bindRemoveButton()
+			} );
+		}
+	}
 
-	//         		if ( key == 'subcategory' && newDoc ) {
-	// 					formHtml += '<select data-key=' + key + ' name="' + prevKey + '[][' + key  + ']" ></select>';
-	// 					getAllDocuments( 'subcategory', populateDropdown, key );
-	// 				} else if ( key == 'subcategory_name' && newDoc ) {
-	// 					formHtml += '<input type="hidden" name="' + prevKey + '[][' + key  + ']" value="' + json[key] + '" ></input>';
-	// 				}  else {
-	// 					formHtml += '<input name="' + prevKey + '[][' + key  + ']" type="text" value="' + json[key] + '" ></input>';
-	// 				}
+	function bindRemoveButton() {
+		$( '.js-array-remove' ).unbind( 'click' ).click( function () {
+			var currentArray = $( this ).parent( '.js-doc-array' );
+			currentArray.slideUp(200, function () {
+				currentArray.remove();
+			} )
+		} );
+	}
 
-	// 			}
-	// 			formHtml += '</div>';
-	// 		} else {
-	// 	        formHtml += '<div class="doc-array js-doc-array">'+
-	// 	        				'<div class="js-array-remove doc-array-remove"><i class="icon-remove icon-white"></i></div>'+
-	// 	        				'<input name="' + prevKey + '[]' + '" type="text" value="' + array[index] + '" ></input>'+
-	// 	        			'</div>';
-	// 		}
-	// 	}
-	// 	formHtml += '</div>';
-	// }
+	function bindSubcatDropdownEvent() {
+
+		if ( !$( 'select[data-identifier=subcat-dropdown]' ).length ) {
+			return
+		}
+
+
+		$( 'select[data-identifier=subcat-dropdown]' ).unbind( 'change' ).change( function () {
+			var optionText = $(this).find("option:selected").text()
+			$(this).parent().find('input[type="hidden"]').val(optionText);
+		} );
+	}
 
 } );

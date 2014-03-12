@@ -17,17 +17,23 @@ exports.addNewDocument = function(req, res, next) {
   var ObjectID = require('mongodb').ObjectID;
 
   var docString,
-    newId = new ObjectID();
+    newId = new ObjectID(),
+    collectionEmpty = false;
 
   req.collection.find().toArray(function(err, items) {
     // console.log('here')
     // console.log(items.length)
     docString = bson.toString(items[0]);
-    docString = docString.replace( /(ObjectID)\("(\w+)"\)/, '$1\("'+ newId +'"\)' );
+    if ( items.length > 0 ) {
+      docString = docString.replace( /(ObjectID)\("(\w+)"\)/, '$1\("'+ newId +'"\)' );
+    } else {
+      collectionEmpty = true;
+    }
     var ctx = {
       newId: newId,
       docString: docString,
-      newDoc: true
+      newDoc: true,
+      collectionEmpty: collectionEmpty
     };
 
     res.render('document', ctx);
