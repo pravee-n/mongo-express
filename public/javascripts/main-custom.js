@@ -2,7 +2,8 @@ $( document ).ready( function () {
 
 	var arrayFields = [],
 		categoryData,
-		subcategoryData;
+		subcategoryData,
+		subcatNames;
 
 	getAllDocuments('category', categoryDataLoaded)
 	getAllDocuments('subcategory', subcategoryDataLoaded)
@@ -15,7 +16,9 @@ $( document ).ready( function () {
 	function subcategoryDataLoaded( allDocs ) {
 		subcategoryData = allDocs;
 		$('body').trigger('subcategoryDataLoaded');
-		fillSubcategoryInCategoryDoc( subcategoryData );
+		if ( $( 'select[data-identifier=subcat-dropdown]' ).length ) {
+			fillSubcategoryInCategoryDoc( subcategoryData, subcatNames );
+		}
 	}
 
 	$('body').on('categoryDataLoaded', function() {
@@ -62,7 +65,17 @@ $( document ).ready( function () {
 			if ( $.inArray(key, arrayFields) > -1 ) {
 				formHtml += '<label data-key=' + key + ' >' + key + '</label>';
 				formHtml += '<div class="doc-array-container js-array-container">'+
+								'<input type="hidden" data-identifier="array-fix" name="' + key + '[]" value="">'+
 								'<div class="doc-array-add js-array-add" ><i class="icon-plus-sign icon-white" ></i>Add another</div>';
+
+				if ( currentTemplate[key].length == 0 ) {
+					firstElement = '<div class="doc-array js-doc-array">' +
+										'<div class="js-array-remove doc-array-remove"><i class="icon-remove icon-white"></i></div>' +
+			        					'<input data-key=' + key + ' name="' + key + '[]" type="text" value="" ></input>' +
+			        				'</div>';
+					formHtml += firstElement;
+				}
+
 				for (index in currentTemplate[key]) {
 					firstElement = '<div class="doc-array js-doc-array">' +
 										'<div class="js-array-remove doc-array-remove"><i class="icon-remove icon-white"></i></div>' +
@@ -71,6 +84,9 @@ $( document ).ready( function () {
 					formHtml += firstElement;
 				}
 				formHtml += '</div>'
+			} else if ( key == '_id' ) {
+				formHtml += '<label>' + key + '</label>'+
+							'<input type="text" readonly name="' + key + '" value="' + currentTemplate[key] + '" >';
 			} else {
 				formHtml += '<label>' + key + '</label>'+
 							'<input type="text" name="' + key + '" value="' + currentTemplate[key] + '" >';
@@ -85,14 +101,26 @@ $( document ).ready( function () {
     function renderCategory(currentTemplate, arrayFields) {
 		formHtml = '<form class="js-document-form">';
 		var firstElement = '',
-			argsList = [],
-			subcatNames = [];
+			argsList = [];
+
+		subcatNames = [];
 
 		for (key in currentTemplate) {
 			if ( $.inArray(key, arrayFields) > -1 ) {
 				formHtml += '<label data-key=' + key + ' >' + key + '</label>';
 				formHtml += '<div class="doc-array-container js-array-container">'+
+								'<input type="hidden" data-identifier="array-fix" name="' + key + '[]" value="">'+
 								'<div class="doc-array-add js-array-add" ><i class="icon-plus-sign icon-white" ></i>Add another</div>';
+
+				if ( currentTemplate[key].length == 0 ) {
+					firstElement = '<div class="doc-array js-doc-array">' +
+										'<div class="js-array-remove doc-array-remove"><i class="icon-remove icon-white"></i></div>' +
+										'<input type="hidden" data-key=' + key + ' name="' + key + '[][subcategory_name]" ></input>' +
+										'<select data-identifier="subcat-dropdown" data-key=' + key + ' name="' + key + '[][subcategory]" ></select>' +
+			        				'</div>';
+					formHtml += firstElement;
+				}
+
 				for (index in currentTemplate[key]) {
 					firstElement = '<div class="doc-array js-doc-array">' +
 										'<div class="js-array-remove doc-array-remove"><i class="icon-remove icon-white"></i></div>' +
@@ -100,22 +128,20 @@ $( document ).ready( function () {
 										'<select data-identifier="subcat-dropdown" data-key=' + key + ' name="' + key + '[][subcategory]" ></select>' +
 			        				'</div>';
 					formHtml += firstElement;
-					subcatNames.push(currentTemplate[key][index].subcategory_name)
+					subcatNames.push(currentTemplate[key][index].subcategory)
 				}
 				formHtml += '</div>'
+			} else if ( key == '_id' ) {
+				formHtml += '<label>' + key + '</label>'+
+							'<input type="text" readonly name="' + key + '" value="' + currentTemplate[key] + '" >';
 			} else {
 				formHtml += '<label>' + key + '</label>'+
 							'<input type="text" name="' + key + '" value="' + currentTemplate[key] + '" >';
 			}
 		}
-
 		formHtml += '</form>';
 		$( '.js-doc-form' ).append( formHtml );
 
-		// argsList.push(subcatNames)
-		// getAllDocuments('subcategory', fillSubcategoryInCategoryDoc, argsList);
-		// firstElement = 
-		// bindFormEvents(firstElement)
     }
 
     function renderProduct(currentTemplate, arrayFields) {
@@ -144,9 +170,7 @@ $( document ).ready( function () {
     }
 
     function fillCategoryInProductDoc(allDocs) {
-    	console.log(allDocs)
     	var nameIdMap = getNameIdMap( allDocs )
-    	console.log(nameIdMap)
     	var categoryHtml = '<option value="0">Choose category</option>';
     	for ( var i = 0; i < nameIdMap.length; i++ ) {
 			categoryHtml += '<option value=' + nameIdMap[i].id + ' >' + nameIdMap[i].name + '</option>'
@@ -169,13 +193,11 @@ $( document ).ready( function () {
     }
 
     function getProductIds() {
-    	console.log('sending')
     	$.ajax({
 	        url: '/db/'+ dbName + '/product/getProductIds',
 	        cache: false,
 	        type: "GET",
 	        complete: function(response){
-	        	console.log(response.responseText)
 	        	productsData = jQuery.parseJSON( response.responseText )
 	        	fillProductsData(productsData)
 	        }
@@ -204,7 +226,6 @@ $( document ).ready( function () {
     		findProductId($(this).val())
     	});
     	$('.js-prodid').click(function(){
-    		console.log($(this).attr('data-pid'))
     		$('.product-id-list-toggler').val($(this).attr('data-pid'))
     	})
     }
@@ -250,14 +271,29 @@ $( document ).ready( function () {
 	}
 
 	$( '.js-doc-save' ).mouseover( function () {
+		fixArrayContents()
 		var documentJson = $( '.js-document-form' ).serializeObject();
 		documentJson = getFinalDocument( documentJson );
 		var documentJsonString = JSON.stringify( documentJson );
 
 		documentJsonString = getFinalDocumentString( documentJsonString );
-		// console.log(documentJsonString)
 		$( '#document' ).text( documentJsonString );
 	} );
+
+	function fixArrayContents() {
+
+		if ( collectionName == 'category' ) {
+			$( 'select[data-key=child_subcategories]' ).each( function() {
+				if ( $( this ).val() == 0 || $( this ).val == "" ) {
+					$(this).parent().remove()
+				}
+			} );
+		}
+
+		if ( $('.js-doc-array').length ) {
+			$( 'input[data-identifier=array-fix]' ).remove();
+		}
+	}
 
 	function getAllDocuments( collection, nextFunction, argsList ) {
 		$.ajax({
@@ -266,7 +302,6 @@ $( document ).ready( function () {
 	        type: "GET",
 	        complete: function(response){
 	        	var responseString = response.responseText;
-	        	// console.log(responseString)
 	        	if ( responseString[responseString.length-1] != ']' ) {
 	        		responseString += ']';
 	        	}
@@ -294,7 +329,6 @@ $( document ).ready( function () {
 	        		responseString += ']';
 	        	}
 	            var allDocs = jQuery.parseJSON( strToJsonFix( responseString ) );
-	            // console.log(allDocs)
 	            nextFunction( allDocs );
 	        }
 	    });
@@ -314,16 +348,10 @@ $( document ).ready( function () {
         return nameIdMap;
 	}
 
-	function fillSubcategoryInCategoryDoc( subcategoryData ) {
-		if ( !$( 'select[data-identifier=subcat-dropdown]' ).length ) {
-			return
-		}
-		console.log('here')
+	function fillSubcategoryInCategoryDoc( subcategoryData, subcatNames ) {
 		var nameIdMap = [];
 		var subcategoryHtml = '<option value="">Choose subcategory</option>';
-		// var localSubcategoryData = subcategoryData
-		// var subcatNames = argsList[0]
-		// console.log(subcatNames)
+
 
         for ( var i = 0; i < subcategoryData.length; i++ ) {
         	var docMap = {
@@ -334,26 +362,18 @@ $( document ).ready( function () {
         }
 
         for ( var i = 0; i < nameIdMap.length; i++ ) {
-        	// var selected = '';
-        	// // console.log(selected)
-        	// console.log(nameIdMap[i].name)
-        	// // console.log(subcatNames)
-        	// // console.log( nameIdMap[i].name + ':' + subcatNames[j] + ':' + selected)
-        	// for ( var j = 0; j < subcatNames.length; j++ ) {
-        	// 	if ( subcatNames[j] == nameIdMap[i].name ) {
-        	// 		selected = 'selected';
-        	// 		console.log( nameIdMap[i].name + ':' + subcatNames[j] + ':' + selected)
-        	// 		subcatNames.splice( j, 1 )
-        	// 		console.log(subcatNames)
-        	// 		break;
-        	// 	}
-        	// }
-
-        	// console.log( nameIdMap[i].name + ':' + selected)
-
 			subcategoryHtml += '<option value=' + nameIdMap[i].id + ' >' + nameIdMap[i].name + '</option>'
 		}
+
 		$( 'select[data-key=child_subcategories]' ).html( subcategoryHtml );
+
+		var ctr = 0;
+		$( 'select[data-key=child_subcategories]' ).each( function() {
+			$(this).val(subcatNames[ctr])
+			ctr++;
+			var optionText = $(this).find("option:selected").text()
+			$(this).parent().find('input[type="hidden"]').val(optionText);
+		} );
 
 		bindSubcatDropdownEvent()
 		var firstElement = $( '.js-array-add' ).parent().find( '.js-doc-array:first' ).clone()
@@ -418,7 +438,6 @@ $( document ).ready( function () {
 
 	function bindFormEvents(firstElement) {
 
-		console.log(firstElement)
 		bindRemoveButton()
 
 		if (firstElement != '') {
@@ -427,9 +446,13 @@ $( document ).ready( function () {
 				// $('.js-array-container').append($(firstElement)[0].outerHTML)
 				// console.log($(firstElement)[0].outerHTML)
 				$( this ).after($(firstElement)[0].outerHTML)
-				bindSubcatDropdownEvent()
+
+				if ( $( 'select[data-identifier=subcat-dropdown]' ).length ) {
+					bindSubcatDropdownEvent()
+				}
+
 				// $( firstElement ).insertAfter( $( this ) );
-				// $( this ).parent().find( '.js-doc-array:first input' ).val( '' );
+				$( this ).parent().find( '.js-doc-array:first input' ).val( '' );
 				bindRemoveButton()
 			} );
 		}
@@ -445,11 +468,6 @@ $( document ).ready( function () {
 	}
 
 	function bindSubcatDropdownEvent() {
-
-		if ( !$( 'select[data-identifier=subcat-dropdown]' ).length ) {
-			return
-		}
-
 
 		$( 'select[data-identifier=subcat-dropdown]' ).unbind( 'change' ).change( function () {
 			var optionText = $(this).find("option:selected").text()
