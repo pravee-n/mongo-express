@@ -58,35 +58,48 @@ $( document ).ready( function () {
 
     function renderSubcategory(currentTemplate, arrayFields) {
 
-		formHtml = '<form class="js-document-form">';
+		formHtml = '<form class="js-document-form" id="js-document-form" >';
 		var firstElement = '';
 
 		for (key in currentTemplate) {
 			if ( $.inArray(key, arrayFields) > -1 ) {
 				formHtml += '<label data-key=' + key + ' >' + key + '</label>';
 				formHtml += '<div class="doc-array-container js-array-container">'+
-								'<input type="hidden" data-identifier="array-fix" name="' + key + '[]" value="">'+
+								// '<input type="hidden" data-identifier="array-fix" name="' + key + '[]" value="">'+
 								'<div class="doc-array-add js-array-add" ><i class="icon-plus-sign icon-white" ></i>Add another</div>';
 
-				if ( currentTemplate[key].length == 0 ) {
-					firstElement = '<div class="doc-array js-doc-array">' +
-										'<div class="js-array-remove doc-array-remove"><i class="icon-remove icon-white"></i></div>' +
-			        					'<input data-key=' + key + ' name="' + key + '[]" type="text" value="" ></input>' +
-			        				'</div>';
-					formHtml += firstElement;
-				}
+				formHtml += '<div class="doc-array js-doc-array">'+
+									'<div class="js-array-remove doc-array-remove"><i class="icon-remove icon-white"></i></div>';
 
 				for (index in currentTemplate[key]) {
-					firstElement = '<div class="doc-array js-doc-array">' +
-										'<div class="js-array-remove doc-array-remove"><i class="icon-remove icon-white"></i></div>' +
-			        					'<input data-key=' + key + ' name="' + key + '[]" type="text" value="' + currentTemplate[key][index] + '" ></input>' +
-			        				'</div>';
-					formHtml += firstElement;
+
+					if ( typeof currentTemplate[key][index] == 'object' ) {
+						console.log('object detected');
+						return
+					}
+
+					formHtml +=	'<div class="array-input-wrapper">'+
+									'<label class="array-label" >' + currentTemplate[key][index] + '</label>';
+					if ( currentTemplate[key][index] == 'display_type' ) {
+						formHtml += '<select class="array-input" data-key=' + currentTemplate[key][index] + ' name="' + key + '[other][]['+ currentTemplate[key][index] +']"</select>'+
+										'<option value="dropdown" >Dropdown</option>'+
+										'<option value="text">Text</option>'+
+									'</select>';
+					} else if( currentTemplate[key][index] == 'specification_type' ) {
+						formHtml += '<div data-val="other" class="form-btn form-btn-first form-btn-selected js-spec-btn">Other</div>'+
+									'<div data-val="secondary" class="form-btn js-spec-btn">Secondary</div>'+
+									'<div data-val="primary" class="form-btn js-spec-btn">Primary</div>';
+					}
+					else {
+						formHtml += '<input class="array-input" data-key=' + currentTemplate[key][index] + ' name="' + key + '[other][]['+ currentTemplate[key][index] +']" type="text" value="' + currentTemplate[key][index] + '" ></input>';
+					}
+					formHtml += '</div>'
 				}
+
 				formHtml += '</div>'
 			} else if ( key == '_id' ) {
 				formHtml += '<label>' + key + '</label>'+
-							'<input type="text" readonly name="' + key + '" value="' + currentTemplate[key] + '" >';
+							'<input type="text" readonly name="document_id" value="' + currentTemplate[key] + '" >';
 			} else {
 				formHtml += '<label>' + key + '</label>'+
 							'<input type="text" name="' + key + '" value="' + currentTemplate[key] + '" >';
@@ -95,7 +108,11 @@ $( document ).ready( function () {
 
 		formHtml += '</form>';
 		$( '.js-doc-form' ).append( formHtml );
-		bindFormEvents(firstElement)
+
+		bindSubcatSpecButtons()
+
+		firstElement = $( '.js-array-container' ).find( '.js-doc-array:first' ).clone()
+		bindFormEvents( firstElement )
     }
 
     function renderCategory(currentTemplate, arrayFields) {
@@ -248,16 +265,17 @@ $( document ).ready( function () {
 		delete json['document_id'];
 		json['_id'] = documentId;
 
-		for ( var key in json ) {
-			if ( json[key] instanceof Array ) {
-				if ( json[key].length == 1 && json[key][0] == "" ) {
-					json[key].splice( 0, 1 );
-					break;
-				}
-			} else {
-				continue;
-			}
-		}
+		// for ( var key in json ) {
+		// 	if ( json[key] instanceof Array ) {
+		// 		if ( json[key].length == 1 && json[key][0] == "" ) {
+		// 			json[key].splice( 0, 1 );
+		// 			break;
+		// 		}
+		// 	} else {
+		// 		continue;
+		// 	}
+		// }
+		console.log(json)
 		return json
 	}
 
@@ -273,6 +291,9 @@ $( document ).ready( function () {
 	$( '.js-doc-save' ).mouseover( function () {
 		fixArrayContents()
 		var documentJson = $( '.js-document-form' ).serializeObject();
+		// var documentJson = $('.js-document-form').toObject();
+		console.log(documentJson)
+		// return;
 		documentJson = getFinalDocument( documentJson );
 		var documentJsonString = JSON.stringify( documentJson );
 
@@ -441,6 +462,7 @@ $( document ).ready( function () {
 		bindRemoveButton()
 
 		if (firstElement != '') {
+			console.log('here1')
 			$( '.js-array-add' ).unbind( 'click' ).click( function () {
 				// $( this ).parent().find( '.js-doc-array:first' ).clone().insertAfter( $( this ) );
 				// $('.js-array-container').append($(firstElement)[0].outerHTML)
@@ -451,11 +473,28 @@ $( document ).ready( function () {
 					bindSubcatDropdownEvent()
 				}
 
+				if ( $( '.js-spec-btn' ).length ) {
+					console.log('here')
+					bindSubcatSpecButtons()
+				}
+
 				// $( firstElement ).insertAfter( $( this ) );
 				$( this ).parent().find( '.js-doc-array:first input' ).val( '' );
 				bindRemoveButton()
 			} );
 		}
+	}
+
+	function bindSubcatSpecButtons() {
+		$( '.js-spec-btn' ).unbind('click').click( function() {
+			$( this ).parent().find( '.js-spec-btn' ).removeClass( 'form-btn-selected' )
+			$( this ).addClass( 'form-btn-selected' )
+			var filterType = $( this ).attr('data-val')
+			$( this ).parent().parent().find('input, select').each(function() {
+				var thisKey = $(this).attr('data-key')
+				$(this).attr('name', 'specifications['+ filterType +'][]['+ thisKey +']')
+			})
+		} );
 	}
 
 	function bindRemoveButton() {

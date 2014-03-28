@@ -17,8 +17,48 @@
 	color: #575757;
 }
 
-.doc-form input {
+.doc-form input, select {
 	width: 45%;
+}
+
+.array-input {
+	float: right;
+	margin: 0 130px 0 0;
+}
+
+.array-input-wrapper {
+	overflow: hidden;
+	margin-bottom: 20px;
+}
+
+.form-btn {
+	border: 1px solid black;
+	display: inline-block;
+	background: white;
+	padding: 5px 10px;
+	font-size: 12px;
+	float: right;
+	margin-left: 10px;
+	cursor: pointer;
+}
+
+.form-btn-first {
+	margin-right: 130px;
+}
+
+.form-btn-selected {
+	border: 1px solid #5bb75b;
+	background-color: #5bb75b;
+	color: white;
+}
+
+.array-label {
+	float: left !important;
+	font-weight: 300 !important;
+	display: inline !important;
+	margin: 0 10px 0 80px !important;
+	font-size: 15px !important;
+	line-height: 28px !important;
 }
 
 .doc-form textarea {

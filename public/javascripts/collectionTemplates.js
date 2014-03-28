@@ -47,15 +47,19 @@ var collectionTemplates = {
 	    "_id": "ObjectID(5273f1e41d41c80f55fcdd00)",
 	    "subcategory_id": "",
 	    "name": "",
-	    "filters": [
-	        "filter_name"
+	    "specifications": [
+	        "name",
+	        "display_name",
+	        "display_priority",
+	        "display_type",
+	        "specification_type"
 	    ]
 	}
 }
 
 var collectionArrayFields = {
 	subcategory : [
-		"filters"
+		"specifications"
 	],
 	category : [
 		'child_subcategories'
