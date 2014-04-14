@@ -353,7 +353,9 @@ $( document ).ready( function () {
 	function prepareFormSubmit() {
 		// return false;
 
-		fixSubcatIcon()
+		if ( collectionName == 'subcategory' ) {
+			fixSubcatIcon()
+		}
 
 		fixArrayContents()
 		var documentJson = $( '.js-document-form' ).serializeObject();
