@@ -1,5 +1,7 @@
 $( document ).ready( function () {
 
+// method="POST" action="db/{{ dbName }}/{{ collectionName }}/{{ document._id }}"
+
 	var arrayFields = [],
 		categoryData,
 		subcategoryData,
@@ -57,49 +59,90 @@ $( document ).ready( function () {
     }
 
     function renderSubcategory(currentTemplate, arrayFields) {
-
+    	console.log(currentTemplate)
 		formHtml = '<form class="js-document-form" id="js-document-form" >';
 		var firstElement = '';
 
 		for (key in currentTemplate) {
-			if ( $.inArray(key, arrayFields) > -1 ) {
-				formHtml += '<label data-key=' + key + ' >' + key + '</label>';
-				formHtml += '<div class="doc-array-container js-array-container">'+
-								// '<input type="hidden" data-identifier="array-fix" name="' + key + '[]" value="">'+
-								'<div class="doc-array-add js-array-add" ><i class="icon-plus-sign icon-white" ></i>Add another</div>';
 
-				formHtml += '<div class="doc-array js-doc-array">'+
-									'<div class="js-array-remove doc-array-remove"><i class="icon-remove icon-white"></i></div>';
+			if ( key == "specifications" ) {
+				formHtml += '<br><label >' + key + '</label><br>';
 
-				for (index in currentTemplate[key]) {
+				// iterate over primary, secondary and other
+				for ( innerKey in currentTemplate[key] ) {
+					formHtml += '<label >' + innerKey + '</label>';
+					formHtml += '<div class="doc-array-container js-array-container">'+
+									'<input type="hidden" data-identifier="array-fix" name="' + key + '['+innerKey+']">'+
+									'<div class="doc-array-add js-array-add" ><i class="icon-plus-sign icon-white" ></i>Add another</div>';
 
-					if ( typeof currentTemplate[key][index] == 'object' ) {
-						console.log('object detected');
-						return
+
+					if ( currentTemplate[key][innerKey] == "" ) {
+						currentTemplate[key][innerKey] = collectionTemplates['subcategory'].specifications.primary;
 					}
 
-					formHtml +=	'<div class="array-input-wrapper">'+
-									'<label class="array-label" >' + currentTemplate[key][index] + '</label>';
-					if ( currentTemplate[key][index] == 'display_type' ) {
-						formHtml += '<select class="array-input" data-key=' + currentTemplate[key][index] + ' name="' + key + '[other][]['+ currentTemplate[key][index] +']"</select>'+
-										'<option value="dropdown" >Dropdown</option>'+
-										'<option value="text">Text</option>'+
-									'</select>';
-					} else if( currentTemplate[key][index] == 'specification_type' ) {
-						formHtml += '<div data-val="other" class="form-btn form-btn-first form-btn-selected js-spec-btn">Other</div>'+
-									'<div data-val="secondary" class="form-btn js-spec-btn">Secondary</div>'+
-									'<div data-val="primary" class="form-btn js-spec-btn">Primary</div>';
+					// iterate over each filter in primary, secondary and other
+					for (index in currentTemplate[key][innerKey]) {
+						var currentFilter = currentTemplate[key][innerKey][index]
+
+						formHtml += '<div class="doc-array js-doc-array">'+
+										'<div class="js-array-remove doc-array-remove"><i class="icon-remove icon-white"></i></div>';
+
+						// iterate over sub fiels of a filter (such as name, display name, display priority)
+						for ( filterField in currentFilter ) {
+							console.log(currentFilter[filterField])
+							formHtml +=	'<div class="array-input-wrapper">'+
+											'<label class="array-label" >' + filterField + '</label>';
+							if ( filterField == 'display_type' ) {
+								formHtml += '<select class="array-input" data-key=' + filterField + ' name="' + key + '['+innerKey+'][]['+ filterField +']"</select>';
+
+								for ( filterType in subcategoryFilterTypes ) {
+									var selected = '';
+									if ( currentFilter[filterField] == subcategoryFilterTypes[filterType] ) {
+										selected = 'selected';
+									}
+									formHtml += '<option '+selected+' value="'+ subcategoryFilterTypes[filterType] +'" >'+ subcategoryFilterTypes[filterType] +'</option>';
+								}
+
+								formHtml += '</select>';
+
+							} else if ( filterField == 'icon' ) {
+								formHtml += '<input type="hidden" data-identifier="filter-icon-hidden" name="' + key + '['+innerKey+'][]['+ filterField +']" value="'+ currentFilter[filterField] +'" > ';
+								if ( currentFilter[filterField] != '' ) {
+									formHtml += '<input data-identifier="filter-icon" type="file" class="array-input hide"></input>'+
+												'<div class="image-thumb js-image-thumb image-thumb-array" data-identifier="filter-icon" >'+
+													'<div class="image-remove image-remove-array js-img-remove" data-pid="filter-icon" ><i class="icon-remove icon-white"></i></div>'+
+													'<img src="' + collectionImagePaths.filterIcon + currentFilter[filterField] + '">'+
+												'</div>';
+								} else {
+									formHtml += '<input data-identifier="filter-icon" type="file" class="array-input"></input>';
+								}
+							} else {
+								formHtml += '<input class="array-input" data-key=' + filterField + ' name="' + key + '['+innerKey+'][]['+ filterField +']" type="text" value="' + currentFilter[filterField] + '" ></input>';
+							}
+							formHtml += '</div>'
+						}
+
+						formHtml += '</div></div>'
 					}
-					else {
-						formHtml += '<input class="array-input" data-key=' + currentTemplate[key][index] + ' name="' + key + '[other][]['+ currentTemplate[key][index] +']" type="text" value="' + currentTemplate[key][index] + '" ></input>';
-					}
-					formHtml += '</div>'
+
 				}
-
-				formHtml += '</div>'
 			} else if ( key == '_id' ) {
 				formHtml += '<label>' + key + '</label>'+
 							'<input type="text" readonly name="document_id" value="' + currentTemplate[key] + '" >';
+			} else if ( key == 'subcategory_default_image' ) {
+				formHtml += '<label>' + key + '</label>'+
+							'<input type="hidden" data-identifier="subcat-image-hidden" name="' + key + '" value="'+ currentTemplate[key] +'" > ';
+
+				if ( currentTemplate[key] != '' ) {
+					formHtml += '<input type="file" class="hide" data-identifier="subcat-image" >'+
+								'<div class="image-thumb js-image-thumb" >'+
+									'<div class="image-remove js-img-remove" data-pid="subcat-image" ><i class="icon-remove icon-white"></i></div>'+
+									'<img src="' + collectionImagePaths.filterIcon + currentTemplate[key] + '">'+
+								'</div>';
+				} else {
+					formHtml += '<input type="file" data-identifier="subcat-image" >'
+				}
+
 			} else {
 				formHtml += '<label>' + key + '</label>'+
 							'<input type="text" name="' + key + '" value="' + currentTemplate[key] + '" >';
@@ -109,10 +152,34 @@ $( document ).ready( function () {
 		formHtml += '</form>';
 		$( '.js-doc-form' ).append( formHtml );
 
-		bindSubcatSpecButtons()
+		// bindSubcatSpecButtons()
 
-		firstElement = $( '.js-array-container' ).find( '.js-doc-array:first' ).clone()
-		bindFormEvents( firstElement )
+		// firstElement = $( '.js-array-container' ).find( '.js-doc-array:first' ).clone()
+		// bindFormEvents( firstElement )
+
+		bindSubcatArrayEvents();
+		bindIconRemoveButton();
+    }
+
+    function bindSubcatArrayEvents() {
+
+    	bindRemoveButton()
+
+    	var firstElems = []
+    	$( '.js-array-container' ).each( function() {
+    		firstElems.push($( this ).find( '.js-doc-array:first' ).clone())
+    	} );
+
+    	$( '.js-array-add' ).each( function( i ) {
+    		$( this ).unbind( 'click' ).click( function() {
+    			$( this ).after($(firstElems[i])[0].outerHTML);
+    			$( this ).parent().find( '.js-doc-array:first input' ).val( '' );
+    			$( this ).parent().find( '.js-doc-array:first input[type=file]' ).show();
+    			$( this ).parent().find( '.js-doc-array:first .js-image-thumb' ).remove();
+    			bindRemoveButton();
+    		} )
+    	} )
+
     }
 
     function renderCategory(currentTemplate, arrayFields) {
@@ -199,11 +266,6 @@ $( document ).ready( function () {
 		} );
     }
 
-  //   if ( $( '.js-doc-form' ).length ) {
-  //   	$( '.js-doc-form' ).attr( 'data-collection', collectionName );
-		// getFormFromJson( $( '#document' ).text() );
-  //   }
-
     if( collectionName == 'unmapped_product' && documentPage ){
     	$('input[data-key=product_id]').addClass('product-id-list-toggler')
     	getProductIds()
@@ -275,7 +337,7 @@ $( document ).ready( function () {
 		// 		continue;
 		// 	}
 		// }
-		console.log(json)
+		// console.log(json)
 		return json
 	}
 
@@ -288,7 +350,11 @@ $( document ).ready( function () {
 		return docString;
 	}
 
-	$( '.js-doc-save' ).mouseover( function () {
+	function prepareFormSubmit() {
+		// return false;
+
+		fixSubcatIcon()
+
 		fixArrayContents()
 		var documentJson = $( '.js-document-form' ).serializeObject();
 		// var documentJson = $('.js-document-form').toObject();
@@ -299,7 +365,76 @@ $( document ).ready( function () {
 
 		documentJsonString = getFinalDocumentString( documentJsonString );
 		$( '#document' ).text( documentJsonString );
-	} );
+		$( '.js-doc-form' ).submit();
+
+	}
+
+	function fixSubcatIcon() {
+		var iconFiles = [],
+			iconTypes = [],
+			ctr = 0;
+
+		$( 'input[data-identifier=filter-icon]' ).each( function () {
+			var file = $( this )[0].files[0];
+			if ( file == undefined ) {
+				return; //works as continue in jquery.each
+			}
+
+			var imageName = $( this )[0].files[0].name
+			$( this ).parent().find( 'input[type=hidden]' ).val( imageName )
+
+			iconFiles.push( $( this )[0].files[0] );
+			iconTypes.push( 'filterIcon' );
+
+		} );
+
+		subcatImageFile = $( 'input[data-identifier=subcat-image]' )[0].files[0];
+		if ( subcatImageFile != undefined ) {
+			var subcatImageName = $( 'input[data-identifier=subcat-image]' ).val().split('\\').pop();
+			$( 'input[data-identifier=subcat-image-hidden]' ).val( subcatImageName );
+			iconFiles.push( subcatImageFile );
+			iconTypes.push( 'subcatImage' );
+		}
+
+		console.log(iconTypes)
+
+		if ( iconFiles.length > 0 ) {
+			uploadImages( iconTypes, iconFiles )
+		} else {
+			 return;
+		}
+	}
+
+
+	function uploadImages( type, fileArray ) {
+		var data = new FormData();
+
+		data.append( 'type', type )
+
+		$.each(fileArray, function(key, value)
+		{
+			data.append(key, value);
+		});
+
+		$.ajax({
+	        url: '/saveImage',
+	        cache: false,
+	        type: "POST",
+	        data: data,
+	        dataType: 'json',
+	        processData: false, // Don't process the files
+	        contentType: false, // Set content type to false as jQuery will tell the server its a query string request
+	        complete: function(response){
+	        	if ( response.responseText == '1' ) {
+	        		$( '.js-doc-form' ).submit()
+	        	} else {
+	        		res = jQuery.parseJSON( response.responseText );
+	        		alert( res.error );
+	        	}
+	        }
+	    });
+	}
+
 
 	function fixArrayContents() {
 
@@ -311,9 +446,15 @@ $( document ).ready( function () {
 			} );
 		}
 
-		if ( $('.js-doc-array').length ) {
-			$( 'input[data-identifier=array-fix]' ).remove();
-		}
+		$( '.js-array-container' ).each( function() {
+			if ( $( this ).find( '.js-doc-array' ).length ) {
+				$( this ).find( 'input[data-identifier=array-fix]' ).remove()
+			}
+		} )
+
+		// if ( $('.js-doc-array').length ) {
+		// 	$( 'input[data-identifier=array-fix]' ).remove();
+		// }
 	}
 
 	function getAllDocuments( collection, nextFunction, argsList ) {
@@ -462,7 +603,6 @@ $( document ).ready( function () {
 		bindRemoveButton()
 
 		if (firstElement != '') {
-			console.log('here1')
 			$( '.js-array-add' ).unbind( 'click' ).click( function () {
 				// $( this ).parent().find( '.js-doc-array:first' ).clone().insertAfter( $( this ) );
 				// $('.js-array-container').append($(firstElement)[0].outerHTML)
@@ -473,11 +613,6 @@ $( document ).ready( function () {
 					bindSubcatDropdownEvent()
 				}
 
-				if ( $( '.js-spec-btn' ).length ) {
-					console.log('here')
-					bindSubcatSpecButtons()
-				}
-
 				// $( firstElement ).insertAfter( $( this ) );
 				$( this ).parent().find( '.js-doc-array:first input' ).val( '' );
 				bindRemoveButton()
@@ -485,17 +620,6 @@ $( document ).ready( function () {
 		}
 	}
 
-	function bindSubcatSpecButtons() {
-		$( '.js-spec-btn' ).unbind('click').click( function() {
-			$( this ).parent().find( '.js-spec-btn' ).removeClass( 'form-btn-selected' )
-			$( this ).addClass( 'form-btn-selected' )
-			var filterType = $( this ).attr('data-val')
-			$( this ).parent().parent().find('input, select').each(function() {
-				var thisKey = $(this).attr('data-key')
-				$(this).attr('name', 'specifications['+ filterType +'][]['+ thisKey +']')
-			})
-		} );
-	}
 
 	function bindRemoveButton() {
 		$( '.js-array-remove' ).unbind( 'click' ).click( function () {
@@ -511,6 +635,23 @@ $( document ).ready( function () {
 		$( 'select[data-identifier=subcat-dropdown]' ).unbind( 'change' ).change( function () {
 			var optionText = $(this).find("option:selected").text()
 			$(this).parent().find('input[type="hidden"]').val(optionText);
+		} );
+	}
+
+	$( '.js-doc-save' ).click( function () {
+		prepareFormSubmit();
+		return false;
+	} );
+
+	function bindIconRemoveButton() {
+		$( '.js-img-remove' ).unbind( 'click' ).click( function () {
+			var identifier = $( this ).attr( 'data-pid' );
+			// console.log(identifier)
+			console.log($(this).parent())
+			// $( '.js-image-thumb[data-identifier='+ identifier +']' ).remove();
+			$( this ).parent().parent().find( 'input[data-identifier='+ identifier +']' ).show()
+			$( this ).parent().parent().find( 'input[data-identifier='+ identifier +'-hidden]' ).val('');
+			$( this ).parent().remove();
 		} );
 	}
 

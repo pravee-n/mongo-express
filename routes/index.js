@@ -22,6 +22,61 @@ exports.deleteDocument = doc.deleteDocument;
 exports.addDocument = doc.addDocument;
 exports.addNewDocument = doc.addNewDocument;
 
+exports.saveImage = function(req, res){
+
+  var fs = require('fs'),
+    config = require('.././config');
+
+  var path = require('path'),
+    destinationPath =  config.imageRoot,
+    errorFlag = false,
+    iconTypes = req.body.type,
+    ctr = 0;
+
+    iconTypes = iconTypes.split(',');
+
+  // if ( imageType == 'icon' ) {
+  //   destinationPath += config.iconImageDir;
+  // } else if ( imageType == 'product' ) {
+  //   destinationPath += config.productImageDir
+  // }
+
+  for ( key in req.files ){
+    var innerDirectory = '';
+
+    // console.log(req.files[key].name)
+
+    console.log(iconTypes[ctr])
+    if ( iconTypes[ctr] == 'filterIcon' ) {
+      innerDirectory += config.filterIconDir;
+    } else if ( iconTypes[ctr] == 'subcatImage' ) {
+      innerDirectory += config.subcatImageDir;
+    }
+
+    console.log(destinationPath + innerDirectory)
+
+    fs.rename(
+      req.files[key].path,
+      destinationPath + innerDirectory + req.files[key].name,
+      function( error ) {
+        if ( error ) {
+          errorFlag = true;
+        }
+      } );
+
+    ctr++;
+  }
+
+  if ( errorFlag ) {
+    res.send( {
+      error: 'Error while saving image. Please try again later or try to save without uploading images.'
+    } )
+  } else {
+    res.send( '1' )
+  }
+
+}
+
 
 //Homepage route
 exports.index = function(req, res) {

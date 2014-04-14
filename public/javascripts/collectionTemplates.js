@@ -47,21 +47,56 @@ var collectionTemplates = {
 	    "_id": "ObjectID(5273f1e41d41c80f55fcdd00)",
 	    "subcategory_id": "",
 	    "name": "",
-	    "specifications": [
-	        "name",
-	        "display_name",
-	        "display_priority",
-	        "display_type",
-	        "specification_type"
-	    ]
+	    "subcategory_default_image": "",
+	    "specifications": {
+	    	"primary": [
+	    		{
+		    		"name": "",
+			        "display_name": "",
+			        "display_priority": "",
+			        "display_type": "",
+			        "icon": ""
+			    }
+	    	],
+	    	"secondary": [
+	    		{
+		    		"name": "",
+			        "display_name": "",
+			        "display_priority": "",
+			        "display_type": "",
+			        "icon": ""
+			    }
+	    	],
+	    	"other": [
+	    		{
+		    		"name": "",
+			        "display_name": "",
+			        "display_priority": "",
+			        "display_type": "",
+			        "icon": ""
+			    }
+	    	]
+	    }
 	}
 }
 
 var collectionArrayFields = {
 	subcategory : [
-		"specifications"
+		"primary",
+		"secondary",
+		"other"
 	],
 	category : [
 		'child_subcategories'
 	]
+}
+
+var subcategoryFilterTypes = [
+	'text',
+	'dropdown',
+	'other'
+]
+
+var collectionImagePaths = {
+	filterIcon: "/images/icons/filter/",
 }

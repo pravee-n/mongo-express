@@ -47,10 +47,10 @@
   {% if !newDoc %}
     <input type="hidden" name="_method" value="put">
   {% endif %}
-  <button type="submit" class="js-doc-save btn btn-success btn-large"{# onclick="return checkJSON()"#}>
+  <div class="js-doc-save btn btn-success btn-large"{# onclick="return checkJSON()"#}>
     <i class="icon-pencil icon-white"></i>
     Save
-  </button>
+  </div>
   <br /><br />
   <textarea class="span9 doc-textarea" id="document" name="document">{{ docString }}</textarea>
 </form>

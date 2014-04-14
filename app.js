@@ -309,6 +309,9 @@ app.get(config.site.baseUrl+'db/:database', middleware, routes.viewDatabase);
 
 app.get(config.site.baseUrl+'db/:database/:collection/:document/name', middleware, routes.getReferenceNames);
 
+app.post(config.site.baseUrl+'saveImage', middleware, routes.saveImage);
+
+
 //run as standalone App?
 if (require.main === module){
   app.listen(config.site.port);
