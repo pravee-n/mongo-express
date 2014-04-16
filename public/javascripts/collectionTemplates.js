@@ -15,6 +15,8 @@ var collectionTemplates = {
 	    "_id": "ObjectID(5273f1eb1d41c80f55fcdde0)",
 	    "name": "",
 	    "product_id": "",
+	    "barcode_no": "",
+	    "brand": "",
 	    "mrp": "",
 	    "picture_list": [
 	        ""

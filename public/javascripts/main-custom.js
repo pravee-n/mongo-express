@@ -1,6 +1,6 @@
 $( document ).ready( function () {
 
-// method="POST" action="db/{{ dbName }}/{{ collectionName }}/{{ document._id }}"
+	// $('textarea').tinymce();
 
 	var arrayFields = [],
 		categoryData,
@@ -49,13 +49,30 @@ $( document ).ready( function () {
 		arrayFields = collectionArrayFields[collectionName]
 
 		if ( collectionName == 'subcategory' ) {
-			renderSubcategory(currentTemplate, arrayFields)
+			renderSubcategory(currentTemplate, arrayFields);
 		} else if ( collectionName == 'category' ) {
-
-			renderCategory( currentTemplate, arrayFields )
+			renderCategory( currentTemplate, arrayFields );
 		} else if ( collectionName == 'product' ) {
-			renderProduct( currentTemplate, arrayFields )
+			renderProduct( currentTemplate, arrayFields );
+		} else {
+			renderGeneral( currentTemplate );
 		}
+    }
+
+    function renderGeneral( currentTemplate ) {
+    	formHtml = '<form class="js-document-form" id="js-document-form" >';
+    	for (key in currentTemplate) {
+			formHtml += '<label>' + key + '</label>';
+
+			if ( key == '_id' ) {
+				formHtml += '<input type="text" readonly name="document_id" value="' + currentTemplate[key] + '" >';
+			} else {
+				formHtml += '<input type="text" data-key="'+ key +'" name="' + key + '" value="' + currentTemplate[key] + '" >';
+			}
+		}
+
+		formHtml += '</form>';
+		$( '.js-doc-form' ).append( formHtml );
     }
 
     function renderSubcategory(currentTemplate, arrayFields) {
@@ -95,6 +112,7 @@ $( document ).ready( function () {
 							if ( filterField == 'display_type' ) {
 								formHtml += '<select class="array-input" data-key=' + filterField + ' name="' + key + '['+innerKey+'][]['+ filterField +']"</select>';
 
+								// iterate over types of a filter (e.g dropdown, text etc)
 								for ( filterType in subcategoryFilterTypes ) {
 									var selected = '';
 									if ( currentFilter[filterField] == subcategoryFilterTypes[filterType] ) {
@@ -152,11 +170,6 @@ $( document ).ready( function () {
 		formHtml += '</form>';
 		$( '.js-doc-form' ).append( formHtml );
 
-		// bindSubcatSpecButtons()
-
-		// firstElement = $( '.js-array-container' ).find( '.js-doc-array:first' ).clone()
-		// bindFormEvents( firstElement )
-
 		bindSubcatArrayEvents();
 		bindIconRemoveButton();
     }
@@ -181,6 +194,7 @@ $( document ).ready( function () {
     	} )
 
     }
+
 
     function renderCategory(currentTemplate, arrayFields) {
 		formHtml = '<form class="js-document-form">';
@@ -231,26 +245,49 @@ $( document ).ready( function () {
     function renderProduct(currentTemplate, arrayFields) {
 
 		formHtml = '<form class="js-document-form">';
-		var firstElement = '';
+		// var firstElement = '';
 
 		for (key in currentTemplate) {
 			formHtml += '<label>' + key + '</label>';
 
-			if (key == 'product description') {
-				formHtml += '<textarea name="' + key + '" type="text"  >'+ currentTemplate[key] +'</textarea>';
+			if (key == 'product_description') {
+				formHtml += '<textarea name="' + key + '" type="text" data-identifier="product-description"  >'+ currentTemplate[key] +'</textarea>';
 			} else if ( key == 'category' || key == 'subcategory' ) {
 				formHtml += '<select data-key=' + key + ' name="' + key + '" ></select>'
-			}
-			else {
+			} else if ( key == '_id' ) {
+				formHtml += '<input type="text" readonly name="document_id" value="' + currentTemplate[key] + '" >';
+			} else if ( key == "specifications" ) {
+
+				for ( innerKey in currentTemplate[key] ) {
+					formHtml += '<div class="doc-array js-doc-array">'+
+									'<label >' + innerKey + '</label>';
+
+					for ( index in currentTemplate[key][innerKey] ) {
+						var currentFilter = currentTemplate[key][innerKey][index]
+
+						var filterName = currentFilter.name
+						formHtml += '<div class="array-input-wrapper">'+
+										'<label class="array-label" >' + index + '</label>'+
+										'<input class="array-input" name="specifications['+innerKey+']['+index+']" type="text" value="'+currentFilter+'">'+
+									'</div>';
+					}
+
+					formHtml += '</div>';
+				}
+			} else {
 				formHtml += '<input type="text" name="' + key + '" value="' + currentTemplate[key] + '" >';
 			}
 		}
 
-		formHtml += '</form>';
+		formHtml += '<div class="js-prod-spec" ></div></form>';
 		$( '.js-doc-form' ).append( formHtml );
 
+		// tinymce.init({selector:'textarea'});
+
+		// $('textarea[data-identifier=product-description]').tinymce({});
+
 		getAllDocuments( 'category', fillCategoryInProductDoc )
-		bindFormEvents(firstElement)
+		// bindFormEvents(firstElement)
     }
 
     function fillCategoryInProductDoc(allDocs) {
@@ -265,6 +302,69 @@ $( document ).ready( function () {
 			fetchDocument(  'category', $( this ).val(), fillSubcategoryInProductDoc );
 		} );
     }
+
+    function fillSubcategoryInProductDoc( allDocs ) {
+		var nameIdMap = [];
+		var allDocs = allDocs[0].child_subcategories;
+		var subcategoryHtml = '<option value="">Choose</option>';
+
+        for ( var i = 0; i < allDocs.length; i++ ) {
+        	var docMap = {
+        		'id': allDocs[i].subcategory,
+        		'name': allDocs[i].subcategory_name
+        	}
+        	nameIdMap.push( docMap );
+        }
+        for ( var i = 0; i < nameIdMap.length; i++ ) {
+			subcategoryHtml += '<option value=' + nameIdMap[i].id + ' >' + nameIdMap[i].name + '</option>'
+		}
+		$( 'select[name=subcategory]' ).html( subcategoryHtml );
+		$( 'select[name=subcategory]' ).unbind( 'change' ).change( function () {
+			fetchDocument( 'subcategory', $( this ).val(), fillSpecificFiltersInProductDoc );
+		} );
+
+	}
+
+	function fillSpecificFiltersInProductDoc( subcatDoc ) {
+		// console.log(subcatDoc)
+		$( '.js-prod-spec' ).html('');
+		var subcatSpec = subcatDoc[0].specifications,
+			formHtml = '';
+
+		formHtml += '<label>Specifications</label>';
+
+		for ( key in subcatSpec ) {
+			formHtml += '<div class="doc-array js-doc-array">'+
+							'<label >' + key + '</label>';
+			for ( index in subcatSpec[key] ) {
+				var filterName = subcatSpec[key][index].name
+				formHtml += '<div class="array-input-wrapper">'+
+								'<label class="array-label" >' + filterName + '</label>'+
+								'<input class="array-input" name="specifications['+key+']['+filterName+']" type="text" value="">'+
+							'</div>';
+			}
+
+			formHtml += '</div>';
+		}
+
+		// console.log('here')
+		// console.log(formHtml)
+
+					// 	formHtml += '<label >' + innerKey + '</label>';
+					// formHtml += '<div class="doc-array-container js-array-container">'+
+					// formHtml += '<div class="doc-array js-doc-array">'+
+					// formHtml +=	'<div class="array-input-wrapper">'+
+					// 						'<label class="array-label" >' + filterField + '</label>';
+
+
+		// console.log(subcatSpec)
+		// var filters = allDocs[0].filters
+		// for ( var i = 0; i < filters.length; i++ ) {
+		// 	formHtml += '<label>' + filters[i] + '</label>' +
+		// 				'<input name="" type="text" value="" ></input>';
+		// }
+		$( '.js-prod-spec' ).append( formHtml );
+	}
 
     if( collectionName == 'unmapped_product' && documentPage ){
     	$('input[data-key=product_id]').addClass('product-id-list-toggler')
@@ -351,22 +451,22 @@ $( document ).ready( function () {
 	}
 
 	function prepareFormSubmit() {
-		// return false;
 
 		if ( collectionName == 'subcategory' ) {
 			fixSubcatIcon()
 		}
 
 		fixArrayContents()
+
 		var documentJson = $( '.js-document-form' ).serializeObject();
-		// var documentJson = $('.js-document-form').toObject();
 		console.log(documentJson)
-		// return;
+
 		documentJson = getFinalDocument( documentJson );
 		var documentJsonString = JSON.stringify( documentJson );
 
 		documentJsonString = getFinalDocumentString( documentJsonString );
 		$( '#document' ).text( documentJsonString );
+		// return
 		$( '.js-doc-form' ).submit();
 
 	}
@@ -453,10 +553,6 @@ $( document ).ready( function () {
 				$( this ).find( 'input[data-identifier=array-fix]' ).remove()
 			}
 		} )
-
-		// if ( $('.js-doc-array').length ) {
-		// 	$( 'input[data-identifier=array-fix]' ).remove();
-		// }
 	}
 
 	function getAllDocuments( collection, nextFunction, argsList ) {
@@ -493,6 +589,7 @@ $( document ).ready( function () {
 	        		responseString += ']';
 	        	}
 	            var allDocs = jQuery.parseJSON( strToJsonFix( responseString ) );
+	            console.log(allDocs)
 	            nextFunction( allDocs );
 	        }
 	    });
@@ -544,51 +641,20 @@ $( document ).ready( function () {
 		bindFormEvents(firstElement)
 	}
 
-	function fillSubcategoryInProductDoc( allDocs ) {
-		var nameIdMap = [];
-		var allDocs = allDocs[0].child_subcategories;
-		var subcategoryHtml = '<option value="">Choose</option>';
-
-        for ( var i = 0; i < allDocs.length; i++ ) {
-        	var docMap = {
-        		'id': allDocs[i].subcategory,
-        		'name': allDocs[i].subcategory_name
-        	}
-        	nameIdMap.push( docMap );
-        }
-        for ( var i = 0; i < nameIdMap.length; i++ ) {
-			subcategoryHtml += '<option value=' + nameIdMap[i].id + ' >' + nameIdMap[i].name + '</option>'
-		}
-		$( 'select[name=subcategory]' ).html( subcategoryHtml );
-		$( 'select[name=subcategory]' ).unbind( 'change' ).change( function () {
-			fetchDocument( 'subcategory', $( this ).val(), fillSpecificFiltersInProductDoc );
-		} );
-
-	}
-
-	function fillSpecificFiltersInProductDoc( allDocs ) {
-		var filters = allDocs[0].filters
-		for ( var i = 0; i < filters.length; i++ ) {
-			formHtml += '<label>' + filters[i] + '</label>' +
-						'<input name="" type="text" value="" ></input>';
-		}
-		$( '.js-doc-form' ).append( formHtml );
-	}
-
-	function populateDropdown( data, key ) {
-		var nameIdMap = getNameIdMap( data );
-		var dropdownHtml = '<option value="">Choose</option>';
-		for ( var i = 0; i < nameIdMap.length; i++ ) {
-			dropdownHtml += '<option value=' + nameIdMap[i].id + ' >' + nameIdMap[i].name + '</option>'
-		}
-		$( 'select[data-key='+ key +']' ).html( dropdownHtml );
-		$( 'select[name=category]' ).change( function () {
-			fetchDocument(  'category', $( this ).val(), fillSubcategory );
-		} );
-		$( 'select[name=subcategory]' ).unbind( 'change' ).change( function () {
-			fetchDocument( 'subcategory', $( this ).val(), fillSpecificFilters );
-		} );
-	}
+	// function populateDropdown( data, key ) {
+	// 	var nameIdMap = getNameIdMap( data );
+	// 	var dropdownHtml = '<option value="">Choose</option>';
+	// 	for ( var i = 0; i < nameIdMap.length; i++ ) {
+	// 		dropdownHtml += '<option value=' + nameIdMap[i].id + ' >' + nameIdMap[i].name + '</option>'
+	// 	}
+	// 	$( 'select[data-key='+ key +']' ).html( dropdownHtml );
+	// 	$( 'select[name=category]' ).change( function () {
+	// 		fetchDocument(  'category', $( this ).val(), fillSubcategory );
+	// 	} );
+	// 	$( 'select[name=subcategory]' ).unbind( 'change' ).change( function () {
+	// 		fetchDocument( 'subcategory', $( this ).val(), fillSpecificFilters );
+	// 	} );
+	// }
 
 	function strToJsonFix( str ) {
 		var ObjectIdPattern = /(ObjectID)\("(\w+)"\)/g;
