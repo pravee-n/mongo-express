@@ -31,7 +31,7 @@ $( document ).ready( function () {
 		console.log('subcategoryloaded')
 	})
 
-	var referenceFields = [ 'category', 'child_subcategories', 'subcategory' ];
+	// var referenceFields = [ 'category', 'child_subcategories', 'subcategory' ];
     var formHtml = '';
 
     if( $( '.js-doc-form' ).length ) {
@@ -54,9 +54,30 @@ $( document ).ready( function () {
 			renderCategory( currentTemplate, arrayFields );
 		} else if ( collectionName == 'product' ) {
 			renderProduct( currentTemplate, arrayFields );
+		} else if ( collectionName == 'misc_data' ) {
+			renderMisc( currentTemplate );
 		} else {
 			renderGeneral( currentTemplate );
 		}
+    }
+
+    function renderMisc( currentTemplate ) {
+    	formHtml = '<form class="js-document-form" id="js-document-form" >';
+    	for (key in currentTemplate) {
+			formHtml += '<label>' + key + '</label>';
+			if ( key == '_id' ) {
+				formHtml += '<input type="text" readonly name="document_id" value="' + currentTemplate[key] + '" >';
+			} else if ( key == 'default_filters' ) {
+				for ( var i = 0; i < 3; i++ ) {
+					formHtml += '<input type="text" name="'+key+'[]" value="' + currentTemplate[key][i] + '" ><br>';
+				}
+			} else {
+				formHtml += '<input type="text" data-key="'+ key +'" name="' + key + '" value="' + currentTemplate[key] + '" >';
+			}
+		}
+
+		formHtml += '</form>';
+		$( '.js-doc-form' ).append( formHtml );
     }
 
     function renderGeneral( currentTemplate ) {

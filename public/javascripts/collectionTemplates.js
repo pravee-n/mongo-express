@@ -79,6 +79,12 @@ var collectionTemplates = {
 			    }
 	    	]
 	    }
+	},
+
+	"misc_data": {
+		"_id": "ObjectID(5273f1eb1d41c80f55fcdde0)",
+		"default_filters": [ "", "", "" ],
+		"update_interval": ""
 	}
 }
 
