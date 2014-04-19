@@ -5,7 +5,8 @@ $( document ).ready( function () {
 	var arrayFields = [],
 		categoryData,
 		subcategoryData,
-		subcatNames;
+		subcatNames,
+		currentDocjson;
 
 	getAllDocuments('category', categoryDataLoaded)
 	getAllDocuments('subcategory', subcategoryDataLoaded)
@@ -44,9 +45,12 @@ $( document ).ready( function () {
 		} else {
 			currentTemplateString = $( '#document' ).val()
 		}
+
 		currentTemplateString = strToJsonFix( currentTemplateString )
 		currentTemplate = jQuery.parseJSON ( currentTemplateString )
 		arrayFields = collectionArrayFields[collectionName]
+
+		currentDocjson = currentTemplate;
 
 		if ( collectionName == 'subcategory' ) {
 			renderSubcategory(currentTemplate, arrayFields);
@@ -97,7 +101,7 @@ $( document ).ready( function () {
     }
 
     function renderSubcategory(currentTemplate, arrayFields) {
-    	console.log(currentTemplate)
+    	// console.log(currentTemplate)
 		formHtml = '<form class="js-document-form" id="js-document-form" >';
 		var firstElement = '';
 
@@ -411,9 +415,18 @@ $( document ).ready( function () {
 
     function fillProductsData(productsData) {
     	var productsDataHtml = '';
+    	// console.log(currentDocjson)
     	productsDataHtml += '<div class="js-prodid-list prodid-list" >';
     	for (var i=0; i<productsData.length; i++) {
-    		productsDataHtml += '<div data-pid='+productsData[i].productId+' class="js-prodid prodid-list-each" >' + productsData[i].productId +' - '+ productsData[i].name + '</div>'
+    		if ( currentDocjson.name == productsData[i].name ) {
+    			productsDataHtml += '<div data-pid='+productsData[i].productId+' class="js-prodid prodid-list-each" >' + productsData[i].productId +' - '+ productsData[i].name + ' - ' + productsData[i].barcode + '<span class="prodid-tag">Name</span></div>'
+    		} else if ( currentDocjson.barcode_no == productsData[i].barcode ) {
+    			productsDataHtml += '<div data-pid='+productsData[i].productId+' class="js-prodid prodid-list-each" >' + productsData[i].productId +' - '+ productsData[i].name + ' - ' + productsData[i].barcode + '<span class="prodid-tag">Barcode</span></div>'
+    		} else if ( currentDocjson.barcode_no == productsData[i].barcode && currentDocjson.name == productsData[i].name ) {
+    			productsDataHtml += '<div data-pid='+productsData[i].productId+' class="js-prodid prodid-list-each" >' + productsData[i].productId +' - '+ productsData[i].name + ' - ' + productsData[i].barcode + '<span class="prodid-tag">Name</span><span class="prodid-tag">Barcode</span></div>'
+    		} else {
+    		productsDataHtml += '<div data-pid='+productsData[i].productId+' class="js-prodid prodid-list-each" >' + productsData[i].productId +' - '+ productsData[i].name + ' - ' + productsData[i].barcode + '</div>'
+    		}
     	}
     	productsDataHtml += '</div>';
     	$('.product-id-list-toggler').after(productsDataHtml)

@@ -119,7 +119,8 @@ exports.getProductIds = function(req, res, next){
         for (var i in items) {
           var resJson = {
             'name': items[i].name,
-            'productId': items[i].product_id
+            'productId': items[i].product_id,
+            'barcode': items[i].barcode_no
           }
           resArray.push(resJson)
         }
