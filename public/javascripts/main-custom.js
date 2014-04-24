@@ -6,63 +6,118 @@ $( document ).ready( function () {
 		categoryData,
 		subcategoryData,
 		subcatNames,
-		currentDocjson;
+		currentDocjson,
+		storeProductArray;
 
-	getAllDocuments('category', categoryDataLoaded)
-	getAllDocuments('subcategory', subcategoryDataLoaded)
 
-	function categoryDataLoaded( allDocs ) {
-		categoryData = allDocs;
-		$('body').trigger('categoryDataLoaded');
-	}
+	initForm()
+	// getAllDocuments('category', categoryDataLoaded)
 
-	function subcategoryDataLoaded( allDocs ) {
-		subcategoryData = allDocs;
-		$('body').trigger('subcategoryDataLoaded');
-		if ( $( 'select[data-identifier=subcat-dropdown]' ).length ) {
-			fillSubcategoryInCategoryDoc( subcategoryData, subcatNames );
-		}
-	}
+	// if ( collectionName )
+	// getAllDocuments('subcategory', subcategoryDataLoaded)
 
-	$('body').on('categoryDataLoaded', function() {
-		console.log('categoryloaded')
-	})
+	// function categoryDataLoaded( allDocs ) {
+	// 	categoryData = allDocs;
+	// 	console.log(categoryData)
+	// 	initForm();
+	// 	// $('body').trigger('categoryDataLoaded');
+	// }
 
-	$('body').on('subcategoryDataLoaded', function() {
-		console.log('subcategoryloaded')
-	})
+	// function subcategoryDataLoaded( allDocs ) {
+	// 	subcategoryData = allDocs;
+	// 	// $('body').trigger('subcategoryDataLoaded');
+	// 	if ( $( 'select[data-identifier=subcat-dropdown]' ).length ) {
+	// 		fillSubcategoryInCategoryDoc( subcategoryData, subcatNames );
+	// 	}
+	// }
 
-	// var referenceFields = [ 'category', 'child_subcategories', 'subcategory' ];
     var formHtml = '';
 
-    if( $( '.js-doc-form' ).length ) {
-    	var currentTemplateString = '';
-    	var currentTemplate;
-    	if ( newDoc ) {
-			currentTemplate = collectionTemplates[collectionName];
-			currentTemplateString = ( JSON.stringify( currentTemplate ) );
-			currentTemplateString = currentTemplateString.replace( /"(ObjectID)\((\w+)\)"/, '$1\("'+ newId +'"\)' );
-		} else {
-			currentTemplateString = $( '#document' ).val()
+
+    function initForm() {
+    	storeProductArray = [];
+    	if( $( '.js-doc-form' ).length ) {
+	    	var currentTemplateString = '';
+	    	var currentTemplate;
+	    	if ( newDoc ) {
+				currentTemplate = collectionTemplates[collectionName];
+				currentTemplateString = ( JSON.stringify( currentTemplate ) );
+				currentTemplateString = currentTemplateString.replace( /"(ObjectID)\((\w+)\)"/, '$1\("'+ newId +'"\)' );
+			} else {
+				currentTemplateString = $( '#document' ).val()
+			}
+
+			currentTemplateString = strToJsonFix( currentTemplateString )
+			currentTemplate = jQuery.parseJSON ( currentTemplateString )
+			arrayFields = collectionArrayFields[collectionName]
+
+			currentDocjson = currentTemplate;
+
+			if ( collectionName == 'subcategory' ) {
+				renderSubcategory(currentTemplate, arrayFields);
+			} else if ( collectionName == 'category' ) {
+
+				renderCategory( currentTemplate, arrayFields );
+
+				getAllDocuments('subcategory', function( allDocs ) {
+					subcategoryData = allDocs;
+					fillSubcategoryInCategoryDoc( subcategoryData, subcatNames );
+				} );
+
+			} else if ( collectionName == 'product' ) {
+
+				getAllDocuments('category', function( allDocs ) {
+					categoryData = allDocs;
+					renderProduct( currentTemplate, arrayFields );
+				} );
+
+			} else if ( collectionName == 'store' ) {
+				renderStore( currentTemplate );
+			} else if ( collectionName == 'misc_data' ) {
+				renderMisc( currentTemplate );
+			} else {
+				renderGeneral( currentTemplate );
+			}
+	    }
+    }
+
+    function renderStore ( currentTemplate ) {
+    	console.log(currentTemplate)
+    	storeProductArray = currentTemplate['products']
+    	formHtml = '<form class="js-document-form" id="js-document-form" >';
+    	for (key in currentTemplate) {
+			if ( key == '_id' ) {
+				formHtml += '<label>' + key + '</label>';
+				formHtml += '<input type="text" readonly name="document_id" value="' + currentTemplate[key] + '" >';
+			} else if ( key == 'location' ) {
+				formHtml += '<label>' + key + '</label>';
+				formHtml += '<div class="doc-array">'+
+								'<div class="array-input-wrapper">'+
+									'<label class="array-label" >Latitude</label>'+
+									'<input class="array-input" type="text" data-key="'+ key +'" name="' + key + '[lat]" value="' + currentTemplate[key].lat + '" >'+
+								'</div>'+
+								'<div class="array-input-wrapper">'+
+									'<label class="array-label" >Longitutde</label>'+
+									'<input class="array-input" type="text" data-key="'+ key +'" name="' + key + '[lon]" value="' + currentTemplate[key].lon + '" >'+
+								'</div>'+
+							'</div>';
+			} else if ( key == 'products' ) {
+				// Do nothing
+
+
+				// if ( currentTemplate[key].length == 0 ) {
+				// 	formHtml += '<input type="hidden" name="'+ key +'[]" >'
+				// } else {
+
+				// }
+			} else {
+				formHtml += '<label>' + key + '</label>';
+				formHtml += '<input type="text" data-key="'+ key +'" name="' + key + '" value="' + currentTemplate[key] + '" >';
+			}
 		}
 
-		currentTemplateString = strToJsonFix( currentTemplateString )
-		currentTemplate = jQuery.parseJSON ( currentTemplateString )
-		arrayFields = collectionArrayFields[collectionName]
-
-		currentDocjson = currentTemplate;
-
-		if ( collectionName == 'subcategory' ) {
-			renderSubcategory(currentTemplate, arrayFields);
-		} else if ( collectionName == 'category' ) {
-			renderCategory( currentTemplate, arrayFields );
-		} else if ( collectionName == 'product' ) {
-			renderProduct( currentTemplate, arrayFields );
-		} else if ( collectionName == 'misc_data' ) {
-			renderMisc( currentTemplate );
-		} else {
-			renderGeneral( currentTemplate );
-		}
+		formHtml += '</form>';
+		$( '.js-doc-form' ).append( formHtml );
     }
 
     function renderMisc( currentTemplate ) {
@@ -269,6 +324,8 @@ $( document ).ready( function () {
 
     function renderProduct(currentTemplate, arrayFields) {
 
+    	var localCategoryData = categoryData,
+    		currentCategory;
 		formHtml = '<form class="js-document-form">';
 		// var firstElement = '';
 
@@ -278,7 +335,28 @@ $( document ).ready( function () {
 			if (key == 'product_description') {
 				formHtml += '<textarea name="' + key + '" type="text" data-identifier="product-description"  >'+ currentTemplate[key] +'</textarea>';
 			} else if ( key == 'category' || key == 'subcategory' ) {
-				formHtml += '<select data-key=' + key + ' name="' + key + '" ></select>'
+				if ( ! newDoc ) {
+					if ( key == 'category' ) {
+
+						formHtml += '<select data-key=' + key + ' name="' + key + '" >';
+						for ( var i = 0; i < localCategoryData.length; i++ ) {
+							if ( localCategoryData[i]._id == currentTemplate.category ) {
+								childSubcategories = localCategoryData[i].child_subcategories;
+							}
+							formHtml += '<option value='+ localCategoryData[i]._id +' >'+ localCategoryData[i].name +'</option>'
+						}
+						formHtml += '</select>'
+
+					} else if ( key == 'subcategory' ) {
+
+						formHtml += '<select data-key=' + key + ' name="' + key + '" >';
+						for ( var i = 0; i < childSubcategories.length; i++ ) {
+							formHtml += '<option value='+ childSubcategories[i].subcategory +' >'+ childSubcategories[i].subcategory_name +'</option>'
+						}
+						formHtml += '</select>';
+
+					}
+				}
 			} else if ( key == '_id' ) {
 				formHtml += '<input type="text" readonly name="document_id" value="' + currentTemplate[key] + '" >';
 			} else if ( key == "specifications" ) {
@@ -311,37 +389,44 @@ $( document ).ready( function () {
 
 		// $('textarea[data-identifier=product-description]').tinymce({});
 
-		getAllDocuments( 'category', fillCategoryInProductDoc )
+		// getAllDocuments( 'category', fillCategoryInProductDoc )
+		if ( newDoc ) {
+			fillCategoryInProductDoc();
+		}
 		// bindFormEvents(firstElement)
     }
 
     function fillCategoryInProductDoc(allDocs) {
-    	var nameIdMap = getNameIdMap( allDocs )
+    	var localCategoryData = categoryData;
+    	// var nameIdMap = getNameIdMap( localCategoryData )
     	var categoryHtml = '<option value="0">Choose category</option>';
-    	for ( var i = 0; i < nameIdMap.length; i++ ) {
-			categoryHtml += '<option value=' + nameIdMap[i].id + ' >' + nameIdMap[i].name + '</option>'
+    	for ( var i = 0; i < localCategoryData.length; i++ ) {
+			categoryHtml += '<option value=' + localCategoryData[i]._id + ' >' + localCategoryData[i].name + '</option>'
 		}
 		$('select[data-key=category]').html(categoryHtml)
 
-		$( 'select[name=category]' ).change( function () {
-			fetchDocument(  'category', $( this ).val(), fillSubcategoryInProductDoc );
+		$( 'select[data-key=category]' ).change( function () {
+			// console.log($(this).val())
+			fillSubcategoryInProductDoc( $(this).val() );
+			// fetchDocument(  'category', $( this ).val(), fillSubcategoryInProductDoc );
 		} );
     }
 
-    function fillSubcategoryInProductDoc( allDocs ) {
-		var nameIdMap = [];
-		var allDocs = allDocs[0].child_subcategories;
+    function fillSubcategoryInProductDoc( categoryId ) {
+		var currentCategory,
+			localCategoryData = categoryData;
+
+		for ( var i = 0; i < localCategoryData.length; i++ ) {
+			if ( localCategoryData[i]._id == categoryId ) {
+				currentCategory = localCategoryData[i]
+			}
+		}
+
+		var childSubcategories = currentCategory.child_subcategories;
 		var subcategoryHtml = '<option value="">Choose</option>';
 
-        for ( var i = 0; i < allDocs.length; i++ ) {
-        	var docMap = {
-        		'id': allDocs[i].subcategory,
-        		'name': allDocs[i].subcategory_name
-        	}
-        	nameIdMap.push( docMap );
-        }
-        for ( var i = 0; i < nameIdMap.length; i++ ) {
-			subcategoryHtml += '<option value=' + nameIdMap[i].id + ' >' + nameIdMap[i].name + '</option>'
+        for ( var i = 0; i < childSubcategories.length; i++ ) {
+			subcategoryHtml += '<option value=' + childSubcategories[i].subcategory + ' >' + childSubcategories[i].subcategory_name + '</option>'
 		}
 		$( 'select[name=subcategory]' ).html( subcategoryHtml );
 		$( 'select[name=subcategory]' ).unbind( 'change' ).change( function () {
@@ -351,7 +436,6 @@ $( document ).ready( function () {
 	}
 
 	function fillSpecificFiltersInProductDoc( subcatDoc ) {
-		// console.log(subcatDoc)
 		$( '.js-prod-spec' ).html('');
 		var subcatSpec = subcatDoc[0].specifications,
 			formHtml = '';
@@ -496,6 +580,11 @@ $( document ).ready( function () {
 		console.log(documentJson)
 
 		documentJson = getFinalDocument( documentJson );
+
+		if ( collectionName == 'store' ) {
+			documentJson = fixProductArray( documentJson )
+		}
+
 		var documentJsonString = JSON.stringify( documentJson );
 
 		documentJsonString = getFinalDocumentString( documentJsonString );
@@ -503,6 +592,16 @@ $( document ).ready( function () {
 		// return
 		$( '.js-doc-form' ).submit();
 
+	}
+
+	function fixProductArray( documentJson ) {
+		// fix list of poducts
+		documentJson['products'] = storeProductArray;
+
+		// also fix latitude longitude str to float
+		documentJson['location'].lat = parseFloat( documentJson['location'].lat )
+		documentJson['location'].lon = parseFloat( documentJson['location'].lon )
+		return documentJson;
 	}
 
 	function fixSubcatIcon() {

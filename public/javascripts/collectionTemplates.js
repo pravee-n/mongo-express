@@ -33,10 +33,10 @@ var collectionTemplates = {
 	    "mobile": "",
 	    "phone_num": "",
 	    "address": "",
-	    "location": [
-	        "",
-	        ""
-	    ],
+	    "location": {
+	    	"lat": "",
+	    	"lon": ""
+	    },
 	    "store_type": "",
 	    "timings": "",
 	    "closing_days": "",
