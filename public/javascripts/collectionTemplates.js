@@ -42,7 +42,8 @@ var collectionTemplates = {
 	    "closing_days": "",
 	    "credit_card": "",
 	    "home_delivery": "",
-	    "in_mall": ""
+	    "in_mall": "",
+	    "products": []
 	},
 
 	subcategory : {
