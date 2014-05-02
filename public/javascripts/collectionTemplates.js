@@ -23,7 +23,8 @@ var collectionTemplates = {
 	    ],
 	    "product_description": "",
 	    "category": "",
-	    "subcategory": ""
+	    "subcategory": "",
+	    "specifications": ""
 	},
 
 	store : {

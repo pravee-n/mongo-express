@@ -361,9 +361,14 @@ $( document ).ready( function () {
 				formHtml += '<input type="text" readonly name="document_id" value="' + currentTemplate[key] + '" >';
 			} else if ( key == "specifications" ) {
 
-				if ( !newDoc ) {
-					formHtml += '<div class="js-prod-spec" >';
-					formHtml += '<label>' + key + '</label>';
+				// if ( !newDoc ) {
+				formHtml += '<div class="js-prod-spec" >';
+				formHtml += '<label>' + key + '</label>';
+					// formHtml += '</div>';
+				// }
+
+				if ( newDoc ) {
+					formHtml += '</div>';
 				}
 
 				for ( innerKey in currentTemplate[key] ) {
@@ -383,7 +388,7 @@ $( document ).ready( function () {
 					formHtml += '</div>';
 				}
 
-				if ( newDoc ) {
+				if ( !newDoc ) {
 					formHtml += '</div>';
 				}
 
@@ -768,6 +773,7 @@ $( document ).ready( function () {
 	        	if ( responseString[responseString.length-1] != ']' ) {
 	        		responseString += ']';
 	        	}
+	        	console.log(responseString)
 	            var allDocs = jQuery.parseJSON( strToJsonFix( responseString ) );
 	            console.log(allDocs)
 	            nextFunction( allDocs );
