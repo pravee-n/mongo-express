@@ -85,7 +85,11 @@ var collectionTemplates = {
 	"misc_data": {
 		"_id": "ObjectID(5273f1eb1d41c80f55fcdde0)",
 		"default_filters": [ "", "", "" ],
-		"update_interval": ""
+		"update_interval_very_short": "",
+		"update_interval_short": "",
+		"update_interval_medium": "",
+		"update_interval_long": "",
+		"update_interval_very_long": ""
 	}
 }
 
@@ -108,4 +112,5 @@ var subcategoryFilterTypes = [
 
 var collectionImagePaths = {
 	filterIcon: "/images/icons/filter/",
+	productImages: "/images/products/",
 }

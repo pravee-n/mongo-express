@@ -195,3 +195,48 @@
 .hide {
 	display: none;
 }
+
+.prod-image-wrapper {
+	float: left;
+	overflow: hidden;
+}
+
+.image-thumb-prod {
+	float: left;
+	margin: 30px 20px 0 0;
+}
+
+.doc-array-prod-images {
+	overflow: hidden;
+}
+
+.doc-array-add-prod {
+	top:10px;
+	right: 10px;
+}
+
+.prod-image-input-wrapper {
+	overflow: hidden;
+}
+
+.prod-image-input {
+	/*display: block;*/
+	float: left;
+	position: relative;
+	border-top-right-radius: 0;
+	border-bottom-right-radius: 0;
+}
+
+.prod-input-remove {
+	float: left;
+	background: #ee5f5b;
+	color: white;
+	padding: 5px 6px;
+	border-top-right-radius: 3px;
+	border-bottom-right-radius: 3px;
+	cursor: pointer;
+}
+
+.prod-input-remove:hover {
+	background: #da4f49;
+}

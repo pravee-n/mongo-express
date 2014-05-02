@@ -11,25 +11,6 @@ $( document ).ready( function () {
 
 
 	initForm()
-	// getAllDocuments('category', categoryDataLoaded)
-
-	// if ( collectionName )
-	// getAllDocuments('subcategory', subcategoryDataLoaded)
-
-	// function categoryDataLoaded( allDocs ) {
-	// 	categoryData = allDocs;
-	// 	console.log(categoryData)
-	// 	initForm();
-	// 	// $('body').trigger('categoryDataLoaded');
-	// }
-
-	// function subcategoryDataLoaded( allDocs ) {
-	// 	subcategoryData = allDocs;
-	// 	// $('body').trigger('subcategoryDataLoaded');
-	// 	if ( $( 'select[data-identifier=subcat-dropdown]' ).length ) {
-	// 		fillSubcategoryInCategoryDoc( subcategoryData, subcatNames );
-	// 	}
-	// }
 
     var formHtml = '';
 
@@ -48,6 +29,7 @@ $( document ).ready( function () {
 			}
 
 			currentTemplateString = strToJsonFix( currentTemplateString )
+
 			currentTemplate = jQuery.parseJSON ( currentTemplateString )
 			arrayFields = collectionArrayFields[collectionName]
 
@@ -89,6 +71,9 @@ $( document ).ready( function () {
 			if ( key == '_id' ) {
 				formHtml += '<label>' + key + '</label>';
 				formHtml += '<input type="text" readonly name="document_id" value="' + currentTemplate[key] + '" >';
+			} else if ( key == 'last_updated_time' ) {
+				formHtml += '<label>' + key + '</label>';
+				formHtml += '<input type="text" readonly name="'+key+'" value="' + currentTemplate[key] + '" >';
 			} else if ( key == 'location' ) {
 				formHtml += '<label>' + key + '</label>';
 				formHtml += '<div class="doc-array">'+
@@ -329,8 +314,6 @@ $( document ).ready( function () {
     		selectedCat = '',
     		selectedSubcat = '';
 		formHtml = '<form class="js-document-form">';
-		// var firstElement = '';
-		// console.log(locay)
 
 		for (key in currentTemplate) {
 
@@ -398,6 +381,31 @@ $( document ).ready( function () {
 					formHtml += '</div>';
 				}
 
+			} else if ( key == "picture_list" ) {
+				formHtml += '<label>' + key + '</label>';
+				if ( newDoc ) {
+					formHtml += '<div class="js-doc-array doc-array doc-array-prod-images">'+
+									'<div class="doc-array-add doc-array-add-prod js-array-add-prod" ><i class="icon-plus-sign icon-white" ></i>Add another</div>'+
+									'<div class="prod-image-input-wrapper">'+
+										'<input class="prod-image-input" name="picture_list[]" type="text">'+
+										'<div class="prod-input-remove js-prod-input-remove" ><i class="icon-remove icon-white"></i></div>'+
+									'</div>'+
+								'</div>';
+
+				} else {
+					formHtml += '<div class="js-doc-array doc-array doc-array-prod-images">'+
+									'<div class="doc-array-add doc-array-add-prod js-array-add-prod" ><i class="icon-plus-sign icon-white" ></i>Add another</div>';
+					for ( var i=0; i<currentTemplate[key].length; i++ ) {
+						formHtml += '<div class="js-prod-image-wrapper prod-image-wrapper">'+
+										'<input  type="hidden" name="'+key+'[]" value="'+currentTemplate[key][i]+'" >'+
+										'<div class="image-thumb image-thumb-prod " data-identifier="prod-image" >'+
+											'<div class="image-remove js-prod-img-remove" ><i class="icon-remove icon-white"></i></div>'+
+											'<img src="' + collectionImagePaths.productImages + currentTemplate[key][i] + '">'+
+										'</div>'+
+									'</div>';
+					}
+					formHtml += '</div>';
+				}
 			} else {
 				formHtml += '<label>' + key + '</label>';
 				formHtml += '<input type="text" name="' + key + '" value="' + currentTemplate[key] + '" >';
@@ -407,17 +415,14 @@ $( document ).ready( function () {
 		formHtml += '</form>';
 		$( '.js-doc-form' ).append( formHtml );
 
-		// tinymce.init({selector:'textarea'});
-
-		// $('textarea[data-identifier=product-description]').tinymce({});
-
-		// getAllDocuments( 'category', fillCategoryInProductDoc )
 		if ( newDoc ) {
 			fillCategoryInProductDoc();
 		} else {
+			bindProdImageRemove();
 			bindCatSpecificSubcat();
 			bindSubcatSpecificSpecs();
 		}
+		bindProdAddButton();
 		// bindFormEvents(firstElement)
     }
 
@@ -490,22 +495,6 @@ $( document ).ready( function () {
 			formHtml += '</div>';
 		}
 
-		// console.log('here')
-		// console.log(formHtml)
-
-					// 	formHtml += '<label >' + innerKey + '</label>';
-					// formHtml += '<div class="doc-array-container js-array-container">'+
-					// formHtml += '<div class="doc-array js-doc-array">'+
-					// formHtml +=	'<div class="array-input-wrapper">'+
-					// 						'<label class="array-label" >' + filterField + '</label>';
-
-
-		// console.log(subcatSpec)
-		// var filters = allDocs[0].filters
-		// for ( var i = 0; i < filters.length; i++ ) {
-		// 	formHtml += '<label>' + filters[i] + '</label>' +
-		// 				'<input name="" type="text" value="" ></input>';
-		// }
 		$( '.js-prod-spec' ).append( formHtml );
 	}
 
@@ -537,17 +526,23 @@ $( document ).ready( function () {
     	productsDataHtml += '<div class="js-prodid-list prodid-list" >';
     	for (var i=0; i<productsData.length; i++) {
     		if ( currentDocjson.name == productsData[i].name ) {
-    			productsDataHtml += '<div data-pid='+productsData[i].productId+' class="js-prodid prodid-list-each" >' + productsData[i].productId +' - '+ productsData[i].name + ' - ' + productsData[i].barcode + '<span class="prodid-tag">Name</span></div>'
+    			productsDataHtml += '<div data-pid='+productsData[i].productId+' class="js-prodid prodid-list-each js-prod-tag" >' + productsData[i].productId +' - '+ productsData[i].name + ' - ' + productsData[i].barcode + '<span class="prodid-tag">Name</span></div>'
     		} else if ( currentDocjson.barcode_no == productsData[i].barcode ) {
-    			productsDataHtml += '<div data-pid='+productsData[i].productId+' class="js-prodid prodid-list-each" >' + productsData[i].productId +' - '+ productsData[i].name + ' - ' + productsData[i].barcode + '<span class="prodid-tag">Barcode</span></div>'
+    			productsDataHtml += '<div data-pid='+productsData[i].productId+' class="js-prodid prodid-list-each js-prod-tag" >' + productsData[i].productId +' - '+ productsData[i].name + ' - ' + productsData[i].barcode + '<span class="prodid-tag">Barcode</span></div>'
     		} else if ( currentDocjson.barcode_no == productsData[i].barcode && currentDocjson.name == productsData[i].name ) {
-    			productsDataHtml += '<div data-pid='+productsData[i].productId+' class="js-prodid prodid-list-each" >' + productsData[i].productId +' - '+ productsData[i].name + ' - ' + productsData[i].barcode + '<span class="prodid-tag">Name</span><span class="prodid-tag">Barcode</span></div>'
+    			productsDataHtml += '<div data-pid='+productsData[i].productId+' class="js-prodid prodid-list-each js-prod-tag" >' + productsData[i].productId +' - '+ productsData[i].name + ' - ' + productsData[i].barcode + '<span class="prodid-tag">Name</span><span class="prodid-tag">Barcode</span></div>'
     		} else {
     		productsDataHtml += '<div data-pid='+productsData[i].productId+' class="js-prodid prodid-list-each" >' + productsData[i].productId +' - '+ productsData[i].name + ' - ' + productsData[i].barcode + '</div>'
     		}
     	}
     	productsDataHtml += '</div>';
     	$('.product-id-list-toggler').after(productsDataHtml)
+
+    	var $tagDivs = $( '.js-prod-tag' ).clone();
+    	$( '.js-prod-tag' ).remove();
+
+    	$( '.js-prodid-list' ).prepend( $tagDivs );
+
     	$('.product-id-list-toggler').click(function(e){
     		$('.prodid-list').show()
     		findProductId($(this).val())
@@ -611,12 +606,15 @@ $( document ).ready( function () {
 		fixArrayContents()
 
 		var documentJson = $( '.js-document-form' ).serializeObject();
-		console.log(documentJson)
 
 		documentJson = getFinalDocument( documentJson );
 
 		if ( collectionName == 'store' ) {
-			documentJson = fixProductArray( documentJson )
+			documentJson = fixProductArray( documentJson );
+		}
+
+		if ( collectionName == "misc_data" ) {
+			documentJson = fixMiscData( documentJson );
 		}
 
 		var documentJsonString = JSON.stringify( documentJson );
@@ -626,6 +624,15 @@ $( document ).ready( function () {
 		// return
 		$( '.js-doc-form' ).submit();
 
+	}
+
+	function fixMiscData( documentJson ) {
+		documentJson['update_interval_very_short'] = parseInt( documentJson['update_interval_very_short'] );
+		documentJson['update_interval_short'] = parseInt( documentJson['update_interval_short'] );
+		documentJson['update_interval_medium'] = parseInt( documentJson['update_interval_medium'] );
+		documentJson['update_interval_long'] = parseInt( documentJson['update_interval_long'] );
+		documentJson['update_interval_very_long'] = parseInt( documentJson['update_interval_very_long'] );
+		return documentJson;
 	}
 
 	function fixProductArray( documentJson ) {
@@ -665,7 +672,7 @@ $( document ).ready( function () {
 			iconTypes.push( 'subcatImage' );
 		}
 
-		console.log(iconTypes)
+		// console.log(iconTypes)
 
 		if ( iconFiles.length > 0 ) {
 			uploadImages( iconTypes, iconFiles )
@@ -824,13 +831,25 @@ $( document ).ready( function () {
 	// }
 
 	function strToJsonFix( str ) {
+
 		var ObjectIdPattern = /(ObjectID)\("(\w+)"\)/g;
-		return str.replace( ObjectIdPattern, "\"$1($2)\"" );
+		str = str.replace( ObjectIdPattern, "\"$1($2)\"" );
+
+		var dateTimePattern = /(ISODate)\("(.*)"\)/g;
+		str = str.replace( dateTimePattern, "\"$1($2)\"" );
+
+		return str;
 	}
 
 	function jsonToStrFix( str ) {
+
 		var ObjectIdPattern = /"(ObjectID)\((\w+)\)"/g;
-		return str.replace( ObjectIdPattern, "$1(\"$2\")" );
+		str = str.replace( ObjectIdPattern, "$1(\"$2\")" );
+
+		var dateTimePattern = /"(ISODate)\((.*)\)"/g;
+		str = str.replace( dateTimePattern, "$1(\"$2\")" );
+
+		return str;
 	}
 
 	function bindFormEvents(firstElement) {
@@ -888,6 +907,33 @@ $( document ).ready( function () {
 			$( this ).parent().parent().find( 'input[data-identifier='+ identifier +'-hidden]' ).val('');
 			$( this ).parent().remove();
 		} );
+	}
+
+	function bindProdImageRemove() {
+		$( '.js-prod-img-remove' ).unbind( 'click' ).click( function () {
+			var thisParent = $( this ).parent().parent()
+			thisParent.fadeOut( 200, function() {
+				thisParent.remove()
+			} )
+		} );
+	}
+
+	function bindProdAddButton() {
+		bindProdInputRemove();
+		var inputHtml = '<div class="prod-image-input-wrapper">'+
+							'<input class="prod-image-input" name="picture_list[]" type="text">'+
+							'<div class="prod-input-remove js-prod-input-remove" ><i class="icon-remove icon-white"></i></div>'+
+						'</div>';
+		$( '.js-array-add-prod' ).unbind( 'click' ).click( function () {
+			$( this ).after( inputHtml );
+			bindProdInputRemove();
+		} )
+	}
+
+	function bindProdInputRemove() {
+		$( '.js-prod-input-remove' ).unbind( 'click' ).click( function () {
+			$( this ).parent().remove();
+		} )
 	}
 
 } );
