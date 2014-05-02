@@ -349,6 +349,12 @@ $( document ).ready( function () {
 						formHtml += '</select>';
 
 					}
+				} else {
+					if ( key == 'category' ) {
+						formHtml += '<select data-identifier="prod-cat"  data-key=' + key + ' name="' + key + '" ></select>';
+					} else if ( key == 'subcategory' ) {
+						formHtml += '<select data-identifier="prod-subcat"  data-key=' + key + ' name="' + key + '" ></select>';
+					}
 				}
 			} else if ( key == '_id' ) {
 				formHtml += '<label>' + key + '</label>';
