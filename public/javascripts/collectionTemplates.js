@@ -22,6 +22,7 @@ var collectionTemplates = {
 	        ""
 	    ],
 	    "product_description": "",
+	    "tags": "",
 	    "category": "",
 	    "subcategory": "",
 	    "specifications": ""
@@ -39,11 +40,14 @@ var collectionTemplates = {
 	    	"lon": ""
 	    },
 	    "store_type": "",
-	    "timings": "",
-	    "closing_days": "",
-	    "credit_card": "",
+	    "opening_time": "",
+	    "closing_time": "",
+	    "closing_day": "",
+	    "credit_card_acceptability": "",
 	    "home_delivery": "",
+	    "available_on_request": "",
 	    "in_mall": "",
+	    "tags": "",
 	    "products": []
 	},
 
