@@ -434,7 +434,16 @@ $( document ).ready( function () {
 			bindSubcatSpecificSpecs();
 		}
 		bindProdAddButton();
-		// bindFormEvents(firstElement)
+
+		$('textarea[data-identifier=product-description]').tinymce({
+			script_url : 'javascripts/tinymce.js',
+			theme_url: '/javascripts/themes/modern/theme.js',
+			skin_url: '/javascripts/skins/lightgray/',
+			// plugins : "pagebreak,style,layer,table,save,advhr,advimage,advlink,emotions,iespell,inlinepopups,insertdatetime,preview,media,searchreplace,print,contextmenu,paste,directionality,fullscreen,noneditable,visualchars,nonbreaking,xhtmlxtras,template",
+
+			// theme : "modern"
+		});
+
     }
 
     function fillCategoryInProductDoc(allDocs) {
