@@ -46,7 +46,7 @@
 
 {% block content %}
 
-{% if collectionName != "unmapped_product" && collectionName != "mapped_product" %}
+{% if collectionName != "unmapped_product" && collectionName != "mapped_product" && collectionName != "misc_data" %}
 <p>
 <a href="db/{{ dbName }}/{{ collectionName }}/newDocument" class="btn btn-success btn-large">
   <i class="icon-file icon-white"></i>

@@ -94,7 +94,7 @@
             {% for collection_db in collections -%}
               {% if loop.key == db -%}
                 {% for collection in collection_db -%}
-                  {% if collection != "system.indexes" %}
+                  {% if collection != "system.indexes" && collection != "system.users" %}
                     <li><a href="db/{{ db }}/{{ collection }}"><i class="icon-list-alt"></i> {{ collection }}</a></li>
                   {% endif %}
                 {%- endfor %}

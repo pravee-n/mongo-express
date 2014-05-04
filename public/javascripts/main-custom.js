@@ -2,8 +2,7 @@ $( document ).ready( function () {
 
 	// $('textarea').tinymce();
 
-	var arrayFields = [],
-		categoryData,
+	var categoryData,
 		subcategoryData,
 		subcatNames,
 		currentDocjson,
@@ -31,7 +30,6 @@ $( document ).ready( function () {
 			currentTemplateString = strToJsonFix( currentTemplateString )
 
 			currentTemplate = jQuery.parseJSON ( currentTemplateString )
-			arrayFields = collectionArrayFields[collectionName]
 
 			currentDocjson = currentTemplate;
 
@@ -39,7 +37,7 @@ $( document ).ready( function () {
 				renderSubcategory(currentTemplate);
 			} else if ( collectionName == 'category' ) {
 
-				renderCategory( currentTemplate, arrayFields );
+				renderCategory( currentTemplate );
 
 				getAllDocuments('subcategory', function( allDocs ) {
 					subcategoryData = allDocs;
@@ -261,7 +259,7 @@ $( document ).ready( function () {
     }
 
 
-    function renderCategory(currentTemplate, arrayFields) {
+    function renderCategory( currentTemplate ) {
 		formHtml = '<form class="js-document-form">';
 		var firstElement = '',
 			argsList = [];
@@ -269,7 +267,7 @@ $( document ).ready( function () {
 		subcatNames = [];
 
 		for (key in currentTemplate) {
-			if ( $.inArray(key, arrayFields) > -1 ) {
+			if ( key == 'child_subcategories' ) {
 				formHtml += '<label data-key=' + key + ' >' + key + '</label>';
 				formHtml += '<div class="doc-array-container js-array-container">'+
 								'<input type="hidden" data-identifier="array-fix" name="' + key + '[]" value="">'+

@@ -34,7 +34,7 @@
 <h2>Collections</h2>
 <table class="table table-bordered table-striped table-condensed">
   {% for c in colls %}
-    {% if c != "system.indexes" %}
+    {% if c != "system.indexes" && c != "system.users" %}
       <tr>
         <td class="span2">
           <a href="db/{{ dbName }}/{{ c }}" class="btn btn-success span2">

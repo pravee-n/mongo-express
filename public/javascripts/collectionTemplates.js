@@ -47,7 +47,14 @@ var collectionTemplates = {
 	    "home_delivery": "",
 	    "available_on_request": "",
 	    "in_mall": "",
+	    "delete_flag": "",
+	    "city": "",
+	    "store_category": "",
 	    "tags": "",
+	    "initial_status": "",
+	    "updated_status": "",
+	    "last_updated_time": "",
+	    "update_interval_bracket": "",
 	    "products": []
 	},
 
@@ -63,7 +70,12 @@ var collectionTemplates = {
 			        "display_name": "",
 			        "display_priority": "",
 			        "display_type": "",
-			        "icon": ""
+			        "icon": "",
+			        "A": "",
+			        "B": "",
+			        "C": "",
+			        "D": "",
+			        "E": ""
 			    }
 	    	],
 	    	"secondary": [
@@ -72,7 +84,12 @@ var collectionTemplates = {
 			        "display_name": "",
 			        "display_priority": "",
 			        "display_type": "",
-			        "icon": ""
+			        "icon": "",
+			        "A": "",
+			        "B": "",
+			        "C": "",
+			        "D": "",
+			        "E": ""
 			    }
 	    	],
 	    	"other": [
@@ -81,13 +98,18 @@ var collectionTemplates = {
 			        "display_name": "",
 			        "display_priority": "",
 			        "display_type": "",
-			        "icon": ""
+			        "icon": "",
+			        "A": "",
+			        "B": "",
+			        "C": "",
+			        "D": "",
+			        "E": ""
 			    }
 	    	]
 	    }
 	},
 
-	"misc_data": {
+	misc_data: {
 		"_id": "ObjectID(5273f1eb1d41c80f55fcdde0)",
 		"default_filters": [ "", "", "" ],
 		"update_interval_very_short": "",
@@ -98,22 +120,13 @@ var collectionTemplates = {
 	}
 }
 
-var collectionArrayFields = {
-	subcategory : [
-		"primary",
-		"secondary",
-		"other"
-	],
-	category : [
-		'child_subcategories'
-	]
-}
 
 var subcategoryFilterTypes = [
 	'text',
 	'dropdown',
 	'other'
 ]
+
 
 var collectionImagePaths = {
 	filterIcon: "/images/icons/filter/",
