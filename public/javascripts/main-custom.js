@@ -69,7 +69,7 @@ $( document ).ready( function () {
 			if ( key == '_id' ) {
 				formHtml += '<label>' + key + '</label>';
 				formHtml += '<input type="text" readonly name="document_id" value="' + currentTemplate[key] + '" >';
-			} else if ( key == 'last_updated_time' ) {
+			} else if ( key == 'last_updated_time' || key == 'user' ) {
 				formHtml += '<label>' + key + '</label>';
 				formHtml += '<input type="text" readonly name="'+key+'" value="' + currentTemplate[key] + '" >';
 			} else if ( key == 'location' ) {
@@ -87,12 +87,6 @@ $( document ).ready( function () {
 			} else if ( key == 'products' ) {
 				// Do nothing
 
-
-				// if ( currentTemplate[key].length == 0 ) {
-				// 	formHtml += '<input type="hidden" name="'+ key +'[]" >'
-				// } else {
-
-				// }
 			} else {
 				formHtml += '<label>' + key + '</label>';
 				formHtml += '<input type="text" data-key="'+ key +'" name="' + key + '" value="' + currentTemplate[key] + '" >';
