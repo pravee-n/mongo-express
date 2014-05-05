@@ -16,8 +16,6 @@ var collectionTemplates = {
 	    "name": "",
 	    "product_id": "",
 	    "barcode_no": "",
-	    "brand": "",
-	    "mrp": "",
 	    "picture_list": [
 	        ""
 	    ],
