@@ -38,6 +38,11 @@ app.configure(function(){
   app.use(express.cookieParser(config.site.cookieSecret));
   app.use(express.session({ secret: config.site.sessionSecret }));
   app.use(express.methodOverride());
+
+  app.use(express.basicAuth(function(user, pass) {
+    return user === config.eysUsername && pass === config.eysPassword;
+  }));
+
   app.use(app.router);
 });
 
