@@ -7,7 +7,8 @@ exports.viewDocument = function(req, res, next) {
   var ctx = {
     title: 'Viewing Document: ' + req.document._id,
     editorTheme: config.options.editorTheme,
-    docString: bson.toString(req.document)
+    docString: bson.toString(req.document),
+    collectionData: JSON.stringify( config.collectionData )
   };
 
   res.render('document', ctx);
@@ -33,7 +34,8 @@ exports.addNewDocument = function(req, res, next) {
       newId: newId,
       docString: docString,
       newDoc: true,
-      collectionEmpty: collectionEmpty
+      collectionEmpty: collectionEmpty,
+      collectionData: JSON.stringify( config.collectionData )
     };
 
     res.render('document', ctx);

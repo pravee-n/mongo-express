@@ -6,10 +6,17 @@ $( document ).ready( function () {
 		subcategoryData,
 		subcatNames,
 		currentDocjson,
-		storeProductArray;
+		storeProductArray,
+		collectionTemplates;
 
-
-	initForm()
+	if ( documentPage || newDoc ) {
+		// console.log(collectionData)
+		collectionData = jQuery.parseJSON( $( '.collection-data' ).html() );
+		collectionTemplates = collectionData['collectionTemplates'];
+		subcategoryFilterTypes = collectionData['subcategoryFilterTypes'];
+		collectionImagePaths = collectionData['collectionImagePaths']
+		initForm();
+	}
 
     var formHtml = '';
 
@@ -163,7 +170,7 @@ $( document ).ready( function () {
 
 						// iterate over sub fiels of a filter (such as name, display name, display priority)
 						for ( filterField in currentFilter ) {
-							console.log(currentFilter[filterField])
+							// console.log(currentFilter[filterField])
 							formHtml +=	'<div class="array-input-wrapper">'+
 											'<label class="array-label" >' + filterField + '</label>';
 							if ( filterField == 'display_type' ) {
@@ -510,7 +517,7 @@ $( document ).ready( function () {
 		$( '.js-prod-spec' ).append( formHtml );
 	}
 
-    if( collectionName == 'unmapped_product' && documentPage ){
+    if( documentPage && collectionName == 'unmapped_product'  ){
     	$('input[data-key=product_id]').addClass('product-id-list-toggler')
     	getProductIds()
     }

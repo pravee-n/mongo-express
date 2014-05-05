@@ -22,6 +22,7 @@
   <script type="text/javascript">
 
     documentPage = false
+    collectionData = {}
 
     {% if dbName %}
       dbName = "{{ dbName }}";
@@ -47,7 +48,7 @@
   <link href="stylesheets/bootstrap-responsive.min.css" rel="stylesheet">
   <script src="javascripts/jquery-1.7.2.min.js"></script>
   <script src="javascripts/bootstrap.min.js"></script>
-  <script src="javascripts/collectionTemplates.js"></script>
+  <!-- // <script src="javascripts/collectionTemplates.js"></script> -->
   <script src="javascripts/serializer.js"></script>
   <!-- // <script src="javascripts/tinymce.js"></script> -->
   <script src="javascripts/jquery.tinymce.js"></script>
@@ -140,6 +141,8 @@
     </div>
   </div>
 </div>
-
+<div class="collection-data hide">
+  {{ collectionData }}
+</div>
 </body>
 </html>
