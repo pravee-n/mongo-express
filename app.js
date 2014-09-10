@@ -33,7 +33,7 @@ app.configure(function(){
   app.set('view options', {layout: false});
   app.use(express.favicon());
   app.use(express.logger('dev'));
-  app.use(config.site.baseUrl,express.static(__dirname + '/public'));  
+  app.use(config.site.baseUrl,express.static(__dirname + '/public'));
   app.use(express.bodyParser());
   app.use(express.cookieParser(config.site.cookieSecret));
   app.use(express.session({ secret: config.site.sessionSecret }));
@@ -324,8 +324,8 @@ if (require.main === module){
 }else{
   //as a module
   console.log('Mongo Express module ready to use on route "'+config.site.baseUrl+'*"');
-  server=http.createServer(app);  
-  module.exports=function(req,res,next){    
+  server=http.createServer(app);
+  module.exports=function(req,res,next){
     server.emit('request', req, res);
   };
 }

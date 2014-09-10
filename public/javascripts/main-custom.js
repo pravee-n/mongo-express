@@ -956,4 +956,13 @@ $( document ).ready( function () {
 		} )
 	}
 
+	$('.js-remove-doc').submit(function(event) {
+		var r = confirm("Are you sure you want to delete this document?");
+		if (r == true) {
+		    return;
+		} else {
+			event.preventDefault();
+		}
+	});
+
 } );
