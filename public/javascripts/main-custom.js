@@ -9,6 +9,9 @@ $( document ).ready( function () {
 		storeProductArray,
 		collectionTemplates;
 
+	// Only initialize document form when the user is on
+	// document page (to edit a document) or is creating
+	// a new document
 	if ( documentPage || newDoc ) {
 		// console.log(collectionData)
 		collectionData = jQuery.parseJSON( $( '.collection-data' ).html() );
@@ -21,16 +24,21 @@ $( document ).ready( function () {
     var formHtml = '';
 
 
+    // Function that initializes the document form
     function initForm() {
     	storeProductArray = [];
     	if( $( '.js-doc-form' ).length ) {
 	    	var currentTemplateString = '';
 	    	var currentTemplate;
 	    	if ( newDoc ) {
+	    		// Creating a New document. Read the template from
+	    		// the data provided from config.js
 				currentTemplate = collectionTemplates[collectionName];
 				currentTemplateString = ( JSON.stringify( currentTemplate ) );
 				currentTemplateString = currentTemplateString.replace( /"(ObjectID)\((\w+)\)"/, '$1\("'+ newId +'"\)' );
 			} else {
+				// Edit document mode. Simply read the JSON (or BSON)
+				// object from existing mongo-express form
 				currentTemplateString = $( '#document' ).val()
 			}
 
@@ -40,6 +48,9 @@ $( document ).ready( function () {
 
 			currentDocjson = currentTemplate;
 
+			console.log(currentTemplate)
+
+			// Render document form as per the current collection
 			if ( collectionName == 'subcategory' ) {
 				renderSubcategory(currentTemplate);
 			} else if ( collectionName == 'category' ) {
@@ -68,6 +79,9 @@ $( document ).ready( function () {
 	    }
     }
 
+    // Function that renders Store document by using the template provided
+    // Template can be a blank json object provided by config.js for new document
+    // or an existing JSON object provided by existing mongo-express form
     function renderStore ( currentTemplate ) {
     	// console.log(currentTemplate)
     	storeProductArray = currentTemplate['products']
@@ -104,6 +118,9 @@ $( document ).ready( function () {
 		$( '.js-doc-form' ).append( formHtml );
     }
 
+    // Function that renders misc_Data document by using the template provided
+    // Template can be a blank json object provided by config.js for new document
+    // or an existing JSON object provided by existing mongo-express form
     function renderMisc( currentTemplate ) {
     	formHtml = '<form class="js-document-form" id="js-document-form" >';
     	for (key in currentTemplate) {
@@ -123,6 +140,8 @@ $( document ).ready( function () {
 		$( '.js-doc-form' ).append( formHtml );
     }
 
+    // Function that renders general documents that do not require
+    // specific html for rendering, only textboxes are required.
     function renderGeneral( currentTemplate ) {
     	formHtml = '<form class="js-document-form" id="js-document-form" >';
     	for (key in currentTemplate) {
@@ -139,6 +158,9 @@ $( document ).ready( function () {
 		$( '.js-doc-form' ).append( formHtml );
     }
 
+    // Function that renders Subcategory document by using the template provided
+    // Template can be a blank json object provided by config.js for new document
+    // or an existing JSON object provided by existing mongo-express form
     function renderSubcategory(currentTemplate) {
     	// console.log(currentTemplate)
 		formHtml = '<form class="js-document-form" id="js-document-form" >';
@@ -238,6 +260,8 @@ $( document ).ready( function () {
 		bindIconRemoveButton();
     }
 
+    // Function that binds addition or deletion of new primary,
+    // secondary or other filter type blocks to the existing form
     function bindSubcatArrayEvents() {
 
     	bindRemoveButton()
@@ -259,7 +283,9 @@ $( document ).ready( function () {
 
     }
 
-
+    // Function that renders Subcategory document by using the template provided
+    // Template can be a blank json object provided by config.js for new document
+    // or an existing JSON object provided by existing mongo-express form
     function renderCategory( currentTemplate ) {
 		formHtml = '<form class="js-document-form">';
 		var firstElement = '',
@@ -306,6 +332,10 @@ $( document ).ready( function () {
 
     }
 
+
+    // Function that renders Subcategory document by using the template provided
+    // Template can be a blank json object provided by config.js for new document
+    // or an existing JSON object provided by existing mongo-express form
     function renderProduct(currentTemplate) {
 
     	var localCategoryData = categoryData,
@@ -445,6 +475,8 @@ $( document ).ready( function () {
 
     }
 
+    // Function that generates a dropdown menu containing
+    // all the possible categories when a product document is rendered
     function fillCategoryInProductDoc(allDocs) {
     	var localCategoryData = categoryData;
     	// var nameIdMap = getNameIdMap( localCategoryData )
@@ -456,6 +488,8 @@ $( document ).ready( function () {
 		bindCatSpecificSubcat()
     }
 
+    // Function to make sure that only subcateogories corresponding to
+    // its parent category can be selected.
     function bindCatSpecificSubcat() {
 		$( 'select[data-identifier=prod-cat]' ).change( function () {
 			$( '.js-prod-spec' ).html('');
@@ -465,6 +499,8 @@ $( document ).ready( function () {
 		} );
     }
 
+    // Populates a dropdown menu consisting of all the possible
+    // subcategories corresponding to the selected category
     function fillSubcategoryInProductDoc( categoryId ) {
 		var currentCategory,
 			localCategoryData = categoryData;
@@ -485,6 +521,8 @@ $( document ).ready( function () {
 		bindSubcatSpecificSpecs();
 	}
 
+	// Function to make sure that only specifications corresponding to
+    // its parent subcateogory are rendered in the product doc.
 	function bindSubcatSpecificSpecs() {
 		$( 'select[data-identifier=prod-subcat]' ).unbind( 'change' ).change( function () {
 			// console.log('bind')
@@ -493,6 +531,8 @@ $( document ).ready( function () {
 		} );
 	}
 
+	// Function that actually renders specifications corresponding
+	// to the selected subcategory in product document
 	function fillSpecificFiltersInProductDoc( subcatDoc ) {
 		// $( '.js-prod-spec' ).html('');
 		var subcatSpec = subcatDoc[0].specifications,
@@ -522,6 +562,8 @@ $( document ).ready( function () {
     	getProductIds()
     }
 
+    // Function to get just the ids of all product documents so that
+    // the product ids can be in suggestions during manual tagging
     function getProductIds() {
     	$.ajax({
 	        url: '/db/'+ dbName + '/product/getProductIds',
@@ -534,11 +576,14 @@ $( document ).ready( function () {
 	    });
     }
 
+    // Hide the list of manual tagging suggestions
+    // when anywhere other then the list itself is clicked
     $('body').click(function(){
     	$('.prodid-list').hide()
     });
 
 
+    // Function to generate manual tagging sugestions HTML
     function fillProductsData(productsData) {
     	var productsDataHtml = '';
     	// console.log(currentDocjson)
@@ -575,6 +620,8 @@ $( document ).ready( function () {
     	})
     }
 
+    // Function that provides live search feature in
+    // manual tagging suggestion dropdown
     function findProductId(text) {
     	text = text.toLowerCase()
     	$('.prodid-list-each').each(function() {
@@ -588,6 +635,8 @@ $( document ).ready( function () {
     	});
     }
 
+    // Function to make some tweaks in the final
+    // json object before it is submitted
 	function getFinalDocument( json ) {
 		var documentId = json['document_id'];
 		delete json['document_id'];
@@ -607,6 +656,8 @@ $( document ).ready( function () {
 		return json
 	}
 
+	// Function to convert latitude longitude data into string form
+	// before submitting the form
 	function getFinalDocumentString( docString ) {
 		var latLonPattern = /("location"):\["([0-9]{2}.[0-9]{5})","([0-9]{2}.[0-9]{5})"]/;
 		docString = docString.replace( latLonPattern, "$1:[$2,$3]" );
@@ -645,6 +696,9 @@ $( document ).ready( function () {
 
 	}
 
+	// IN misc_data collection, most of the values are integers.
+	// However, in HTML input boxes the data comes as string.
+	// This function converts all such data from string to integer.
 	function fixMiscData( documentJson ) {
 		documentJson['update_interval_very_short'] = parseInt( documentJson['update_interval_very_short'] );
 		documentJson['update_interval_short'] = parseInt( documentJson['update_interval_short'] );
@@ -701,6 +755,7 @@ $( document ).ready( function () {
 	}
 
 
+	// Upload images over AJAX
 	function uploadImages( type, fileArray ) {
 		var data = new FormData();
 
@@ -730,7 +785,7 @@ $( document ).ready( function () {
 	    });
 	}
 
-
+	// Do not include array type elements that have all fields blank
 	function fixArrayContents() {
 
 		if ( collectionName == 'category' ) {
@@ -748,6 +803,7 @@ $( document ).ready( function () {
 		} )
 	}
 
+	// Get all documents for any given collection
 	function getAllDocuments( collection, nextFunction, argsList ) {
 		$.ajax({
 	        url: "/db/"+ dbName + '/' + collection + '/all',
@@ -764,10 +820,13 @@ $( document ).ready( function () {
 	    });
 	}
 
+	// Extracts id from mongodb's object id
 	function getIdFromObjectId( ObjectId ) {
 		return ObjectId.replace( /ObjectID\((\w+)\)/, "$1" )
 	}
 
+	// Get any document from the backed based on the id
+	// and collectionName provided
 	function fetchDocument( collection, id, nextFunction ) {
 		var catId = getIdFromObjectId( id );
 		$.ajax({
@@ -789,6 +848,8 @@ $( document ).ready( function () {
 	    });
 	}
 
+	// Provides a json object containing document id and name
+	// as key value pair respectively
 	function getNameIdMap( allDocs ) {
 		var nameIdMap = [];
 
@@ -803,6 +864,7 @@ $( document ).ready( function () {
         return nameIdMap;
 	}
 
+	// Populate subcateogry dropdown while rendering category document
 	function fillSubcategoryInCategoryDoc( subcategoryData, subcatNames ) {
 		var nameIdMap = [];
 		var subcategoryHtml = '<option value="">Choose subcategory</option>';
@@ -850,6 +912,7 @@ $( document ).ready( function () {
 	// 	} );
 	// }
 
+	// Converts BSON string into JSON serializable string
 	function strToJsonFix( str ) {
 
 		var ObjectIdPattern = /(ObjectID)\("(\w+)"\)/g;
@@ -861,6 +924,7 @@ $( document ).ready( function () {
 		return str;
 	}
 
+	// Converts the final JSON string into BSON serializable string
 	function jsonToStrFix( str ) {
 
 		var ObjectIdPattern = /"(ObjectID)\((\w+)\)"/g;
@@ -872,6 +936,8 @@ $( document ).ready( function () {
 		return str;
 	}
 
+	// Function to manipulate dom and add new array type fields
+	// to the rendered document form
 	function bindFormEvents(firstElement) {
 
 		bindRemoveButton()
@@ -894,7 +960,8 @@ $( document ).ready( function () {
 		}
 	}
 
-
+	// Function to manipulate dom and remove array type fields
+	// from the rendered document form
 	function bindRemoveButton() {
 		$( '.js-array-remove' ).unbind( 'click' ).click( function () {
 			var currentArray = $( this ).parent( '.js-doc-array' );
@@ -904,6 +971,8 @@ $( document ).ready( function () {
 		} );
 	}
 
+	// Populate subcategory value in hidden fields so as to
+	// submit along with other details in subcat document
 	function bindSubcatDropdownEvent() {
 
 		$( 'select[data-identifier=subcat-dropdown]' ).unbind( 'change' ).change( function () {
@@ -912,11 +981,14 @@ $( document ).ready( function () {
 		} );
 	}
 
+	// Click handler for save document button
 	$( '.js-doc-save' ).click( function () {
 		prepareFormSubmit();
 		return false;
 	} );
 
+	// Function to remove existing uploaded icons
+	// in subcategory document
 	function bindIconRemoveButton() {
 		$( '.js-img-remove' ).unbind( 'click' ).click( function () {
 			var identifier = $( this ).attr( 'data-pid' );
@@ -956,6 +1028,8 @@ $( document ).ready( function () {
 		} )
 	}
 
+
+	// Always ask for confirmation before deleting a document
 	$('.js-remove-doc').submit(function(event) {
 		var r = confirm("Are you sure you want to delete this document?");
 		if (r == true) {

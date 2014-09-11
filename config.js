@@ -73,8 +73,14 @@ module.exports = {
     subprocessTimeout: 300
   },
 
+  // Data required by the front-end to render
+  // new document / edit document form in the
+  // data entry tool application
+
   collectionData: {
     collectionTemplates: {
+
+      // template for category collection
       category: {
         "_id": "ObjectID(5273f1e31d41c80f55fcdcfd)",
           "category_id": "",
@@ -87,6 +93,7 @@ module.exports = {
           ]
       },
 
+      // template for product collection
       product: {
           "_id": "ObjectID(5273f1eb1d41c80f55fcdde0)",
           "name": "",
@@ -102,6 +109,7 @@ module.exports = {
           "specifications": ""
       },
 
+      // template for store collection
       store : {
           "_id": "ObjectID(5273f1e41d41c80f55fcdda0)",
           "name": "",
@@ -132,6 +140,7 @@ module.exports = {
           "products": []
       },
 
+      // template for subcategory collection
       subcategory : {
           "_id": "ObjectID(5273f1e41d41c80f55fcdd00)",
           "subcategory_id": "",
@@ -183,6 +192,7 @@ module.exports = {
           }
       },
 
+      // template for misc_data collection
       misc_data: {
         "_id": "ObjectID(5273f1eb1d41c80f55fcdde0)",
         "default_filters": [ "", "", "" ],
@@ -194,12 +204,15 @@ module.exports = {
       }
     },
 
+    // List of values that determin type of filter
+    // in subcategory document
     subcategoryFilterTypes: [
       'text',
       'dropdown',
       'other'
     ],
 
+    // Path where images are saved by data entry tool
     collectionImagePaths: {
       filterIcon: "/images/icons/filter/",
       productImages: "/images/products/",
