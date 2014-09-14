@@ -207,9 +207,11 @@ module.exports = {
     // List of values that determin type of filter
     // in subcategory document
     subcategoryFilterTypes: [
-      'text',
-      'dropdown',
-      'other'
+      'multiselect',
+      'singleselect',
+      'boolean',
+      'rangeWithStep',
+      'rangeWithDivision'
     ],
 
     // Path where images are saved by data entry tool
